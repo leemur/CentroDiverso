@@ -1,3 +1,6 @@
+/* =========================
+   RESET / VARIABLES
+========================= */
 :root{
   --brown:#4a2f22;
   --orange:#f29a4a;
@@ -6,11 +9,20 @@
   --pink:#fdecef;
 }
 
-body{
-  background:#fff7f2;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
 }
 
+body{
+  background:#fff7f2;
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* =========================
+   LAYOUT
+========================= */
 .page-wrap{
   max-width:1200px;
   margin:20px auto;
@@ -19,38 +31,75 @@ body{
 .shell{
   background:#fff;
   border-radius:24px;
-  overflow:hidden;
+  overflow:hidden; /* mantén esto (es el “marco” redondeado) */
   box-shadow:0 12px 40px rgba(0,0,0,.08);
 }
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
+
+/* ✅ Sticky siempre arriba (desktop + mobile) */
 .topbar{
-  background:#fff;  
-  padding-top: 4px;
-  padding-bottom: 4px;
+  position:sticky;
+  top:0;
+  z-index:1050;
+  background:#fff;
 }
 
+/* (si aún tienes JS viejo que usa esta clase, no rompe nada) */
+.topbar.is-hidden{
+  transform:none !important;
+}
+
+/* Navbar */
+.navbar .container-fluid{
+  align-items:center;
+}
+
+/* Botón hamburguesa: estilizado */
+.navbar-toggler{
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  box-shadow:0 10px 25px rgba(0,0,0,.12);
+}
+
+/* Desktop: oculto (Bootstrap ya lo hace, esto refuerza) */
+@media (min-width:992px){
+  .navbar-toggler{ display:none !important; }
+}
+
+/* Mobile: el menú desplegado queda debajo, full ancho */
+@media (max-width:991.98px){
+  #mainNav{
+    width:100%;
+    margin-top:10px;
+  }
+
+  .nav-links .nav-link{
+    padding:10px 0;
+  }
+}
+
+/* Logo */
 .brand-logo{
-  height:200px;
+  height:140px;
   width:auto;
   object-fit:contain;
 }
 
+/* Links */
 .nav-links .nav-link{
-  font-size: 1.15rem;   /* tamaño desktop */
-  font-weight: 700;
+  font-size:1.15rem;
+  font-weight:700;
 }
 
 .nav-links .nav-item{
   position:relative;
 }
 
-@media (max-width: 992px){
-  .nav-links .nav-link{
-    font-size: 1.25rem; /* un poco más grande en móvil */
-  }
-}
-
+/* Separadores en desktop */
 .nav-links .nav-item + .nav-item::before{
   content:"";
   position:absolute;
@@ -62,9 +111,23 @@ body{
   background:rgba(0,0,0,.2);
 }
 
-/* HERO */
+/* Responsive tipografía */
+@media (max-width:992px){
+  .nav-links .nav-link{
+    font-size:1.25rem;
+  }
+
+  .nav-links .nav-item + .nav-item::before{
+    display:none;
+  }
+}
+
+/* =========================
+   HERO
+========================= */
 .hero{
   background:#fff8f2;
+  scroll-margin-top:90px;
 }
 
 .hero-card{
@@ -86,8 +149,16 @@ body{
 .hero-sub{
   margin:12px 0 18px;
   color:rgba(0,0,0,.65);
+
+  /* tu ajuste bueno */
+  max-width:760px;
+  margin-left:auto;
+  margin-right:auto;
+  line-height:1.65;
+  font-size:1.05rem;
 }
 
+/* CTA */
 .btn-cta{
   background:var(--orange);
   color:#fff;
@@ -97,18 +168,57 @@ body{
   border:none;
 }
 
-/* SECTIONS */
+/* ✅ centrar CTA sin forzar todo el hero a centro */
+.hero-real{
+  text-align:center;
+}
+.hero-real .btn-cta{
+  display:inline-block;
+}
+
+/* =========================
+   SECTIONS
+========================= */
 .section{
   padding:36px;
 }
 
 .section-title{
+  position:relative;
+  display:inline-block;
   font-size:2rem;
   font-weight:800;
   margin-bottom:16px;
 }
 
-/* CARDS */
+.section-title::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  left:-10px;
+  width:110%;
+  height:12px;
+  background:var(--orange);
+  border-radius:20px;
+  opacity:.25;
+  z-index:-1;
+}
+
+.section-head{
+  max-width:760px;
+  margin-bottom:18px;
+}
+
+.section-sub{
+  margin:0;
+  color:rgba(0,0,0,.62);
+  line-height:1.6;
+  font-size:1.05rem;
+}
+
+/* =========================
+   CARDS / PLANES
+========================= */
 .soft-card{
   padding:24px;
   border-radius:16px;
@@ -116,63 +226,324 @@ body{
   border:1px solid rgba(0,0,0,.12);
 }
 
-/* PLANES */
 .plan{
-  padding:24px;
-  border-radius:16px;
-  font-weight:700;
+  position:relative;
+  padding:26px 26px;           /* ✅ evita el “corte” y mejora lectura */
+  border-radius:22px;
+  overflow:hidden;
+  transition:transform .25s ease, box-shadow .25s ease;
 }
 
 .plan-basic{ background:var(--teal); }
 .plan-std{ background:var(--peach); }
 .plan-prem{ background:var(--pink); }
 
-.price{
-  font-size:2rem;
-  font-weight:900;
+/* blob suave */
+.plan::after{
+  content:"";
+  position:absolute;
+  top:-35px;
+  left:-35px;
+  width:130px;
+  height:130px;
+  background:rgba(223,243,243,.35);
+  border-radius:60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity:0;
+  transform:scale(.8);
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:0;
+  pointer-events:none;
 }
 
-/* FOOTER */
-.footer {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.plan:hover{
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(0,0,0,.12);
+}
+
+.plan:hover::after{
+  opacity:1;
+  transform:scale(1);
+}
+
+.plan > *{
+  position:relative;
+  z-index:1;
+}
+
+/* ✅ tipografía consistente */
+.plan h3{
+  font-size:1.25rem;
+  font-weight:800;
+  margin:0 0 6px 0;
+}
+
+.plan .price{
+  font-size:2.1rem;
+  font-weight:900;
+  color:var(--brown);
+  margin:0 0 6px 0;
+}
+
+.plan p{
+  font-size:1rem;
+  line-height:1.6;
+  color:rgba(0,0,0,.65);
+  margin:0;
+}
+
+/* =========================
+   ESPECIALIDADES
+========================= */
+.specialty-card{
+  position:relative;
+  border-radius:22px;
+  overflow:hidden;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+
+.specialty-card::after{
+  content:"";
+  position:absolute;
+  bottom:-40px;
+  right:-40px;
+  width:140px;
+  height:110px;
+  background:rgba(242,154,74,.18);
+  border-radius:55% 45% 60% 40% / 55% 60% 40% 45%;
+  opacity:0;
+  transform:scale(.85);
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:0;
+  pointer-events:none;
+}
+
+.specialty-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(0,0,0,.12);
+}
+
+.specialty-card:hover::after{
+  opacity:1;
+  transform:scale(1);
+}
+
+.specialty-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.specialty-badge{
+  font-size:1.05rem;
+  font-weight:800;
+  letter-spacing:.2px;
+  padding:12px 16px;
+}
+
+.specialty-media{
+  height:170px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff7f2;
+}
+
+.specialty-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+}
+
+.specialty-body{
+  padding:14px 16px 16px;
+}
+
+.specialty-text{
+  font-size:1rem;
+  line-height:1.6;
+  color:rgba(0,0,0,.65);
+  margin:0;
+}
+
+@media (max-width:992px){
+  .specialty-media{
+    height:190px;
+  }
+}
+
+/* =========================
+   HISTORIA
+========================= */
+.historia-text{
+  color:rgba(0,0,0,.65);
+  line-height:1.65;
+  font-size:1.05rem;
+}
+
+.historia-img{
+  border-radius:18px;
+  box-shadow:0 14px 30px rgba(0,0,0,.12);
+  width:80%;
+  height:auto;
+  position:relative;
+  z-index:1;
+}
+
+/* ✅ tus formas: se aplican SOLO si envuelves la imagen con .historia-media */
+.historia-media{
+  position:relative;
+  display:inline-block;
+}
+
+.historia-media::before{
+  content:"";
+  position:absolute;
+  bottom:-32px;
+  right:-22px;
+  width:240px;
+  height:165px;
+  background:rgba(242,154,74,.15);
+  border-radius:55% 45% 60% 40% / 55% 60% 40% 45%;
+  z-index:0;
+  pointer-events:none;
+}
+
+.historia-media::after{
+  content:"";
+  position:absolute;
+  bottom:-40px;
+  right:-30px;
+  width:280px;
+  height:200px;
+  border:4px solid var(--orange);
+  border-radius:55% 45% 60% 40% / 55% 60% 40% 45%;
+  opacity:.35;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+  padding:20px 24px;
+}
+
+/* ✅ quitado “blob grande” que podía ensuciar / tapar cosas */
+.footer::before{
+  content:none;
 }
 
 .footer a{
-  margin-left:10px;
-  font-size:1.4rem;
   color:var(--brown);
 }
 
-.footer-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 1rem;
+.footer-main{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:1rem;
+  padding:10px; /* si quieres más aire, sube a 14px */
 }
 
-.footer-map {
-  width: 100%;
-  border-radius: 14px;
-  overflow: hidden;
+.footer-map{
+  width:100%;
+  border-radius:14px;
+  overflow:hidden;
 }
 
-.footer-map iframe {
-  width: 100%;
-  height: 240px;
-  border: 0;
+.footer-map iframe{
+  width:100%;
+  height:240px;
+  border:0;
 }
 
-/* RESPONSIVE */
+#footerPhone{
+  margin-left:0;
+  font-size:1.05rem;
+  font-weight:700;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+#footerPhone i{
+  font-size:1.15rem;
+  line-height:1;
+}
+
+.footer-right a{
+  margin-left:10px;
+  font-size:1.4rem;
+  text-decoration:none;
+}
+
+/* =========================
+   LOADER / JSON FADE
+========================= */
+[data-content]{
+  transition:opacity .15s ease;
+}
+
+[data-content].ready{
+  opacity:1;
+}
+
+.hero-real{
+  display:none;
+}
+
+.hero-loader{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.35rem;
+  padding:2.5rem 1rem;
+}
+
+.hero-loader-title{
+  font-size:clamp(1.8rem, 5vw, 3rem);
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+.hero-loader-sub{
+  font-size:1rem;
+  opacity:.75;
+}
+
+.hero-content.is-loaded .hero-loader{ display:none; }
+.hero-content.is-loaded .hero-real{ display:block; }
+
+.dots::after{
+  content:"";
+  display:inline-block;
+  width:1.2em;
+  text-align:left;
+  animation:dots 1.4s steps(4, end) infinite;
+}
+
+@keyframes dots{
+  0%   { content:""; }
+  25%  { content:"."; }
+  50%  { content:".."; }
+  75%  { content:"..."; }
+  100% { content:""; }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width:992px){
   .brand-logo{
-    height:120px;
-  }
-
-  .nav-links .nav-item + .nav-item::before{
-    display:none;
+    height:80px;
   }
 
   .hero-title{
@@ -180,147 +551,6 @@ body{
   }
 
   .footer{
-    flex-direction:column;
     gap:12px;
   }
-}
-
-.section-head{
-  max-width: 760px;
-  margin-bottom: 18px;
-}
-
-.section-sub{
-  margin: 0;
-  color: rgba(0,0,0,.62);
-  line-height: 1.6;
-  font-size: 1.05rem;
-}
-
-.hero-sub{
-  max-width: 760px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.65;
-  font-size: 1.05rem;
-}
-
-/* =========================
-   ESPECIALIDADES: CARDS + IMÁGENES
-========================= */
-.specialty-card{
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.10);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,.05);
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.specialty-card:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(0,0,0,.08);
-}
-
-.specialty-badge{
-  padding: 12px 16px;
-  font-weight: 800;
-  color: var(--brown);
-  background: rgba(242,154,74,.12);
-  border-bottom: 1px solid rgba(0,0,0,.06);
-}
-
-.specialty-media{
-  /* centra y uniforma el alto */
-  height: 170px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff7f2;
-}
-
-.specialty-img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;      /* hace que se vean “pro” */
-  object-position: center;
-  display: block;
-}
-
-.specialty-body{
-  padding: 14px 16px 16px;
-}
-
-.specialty-text{
-  margin: 0;
-  color: rgba(0,0,0,.68);
-  line-height: 1.6;
-  font-size: .98rem;
-}
-
-/* Responsive fino para la media */
-@media (max-width: 992px){
-  .specialty-media{
-    height: 190px;
-  }
-}
-
-/* HISTORIA */
-.historia-img{
-  border-radius: 18px;
-  box-shadow: 0 14px 30px rgba(0,0,0,.12);
-  width: 80%;
-  height: auto;
-}
-
-.historia-text{
-  color: rgba(0,0,0,.65);
-  line-height: 1.65;
-  font-size: 1.05rem;
-}
-
-/* Por defecto se ve el HTML (sin esperar al JSON) */
-[data-content] { transition: opacity .15s ease; }
-
-/* Solo cuando llega el JSON, hacemos fade para evitar salto */
-[data-content].ready { opacity: 1; }
-
-.hero-real { display: none; }
-
-.hero-loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .35rem;
-  padding: 2.5rem 1rem;
-}
-
-.hero-loader-title {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 800;
-  letter-spacing: .5px;
-}
-
-.hero-loader-sub {
-  font-size: 1rem;
-  opacity: .75;
-}
-
-.hero-content.is-loaded .hero-loader { display: none; }
-.hero-content.is-loaded .hero-real { display: block; }
-
-.dots::after {
-  content: "";
-  display: inline-block;
-  width: 1.2em;
-  text-align: left;
-  animation: dots 1.4s steps(4, end) infinite;
-}
-
-@keyframes dots {
-  0%   { content: ""; }
-  25%  { content: "."; }
-  50%  { content: ".."; }
-  75%  { content: "..."; }
-  100% { content: ""; }
 }
