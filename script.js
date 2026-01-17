@@ -1,12 +1,7 @@
-// ===================== CONFIG =====================
-const CONTENT_URL =
-  "https://script.google.com/macros/s/AKfycbwQRrNRJ4fF4kpiyUG4w8HYVp68JbSW2SmpTImz3PCwsP_15nvMoMk-f2sRVdgKYVP1/exec";
-
-// Cache local (para que cargue instantáneo después)
+const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min
+const CACHE_TTL_MS = 10 * 60 * 1000;
 
-// ===================== HELPERS =====================
 const byId = (id) => document.getElementById(id);
 
 function setText(id, value) {
