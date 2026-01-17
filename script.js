@@ -320,91 +320,29 @@ async function loadContent() {
   }
 }
 
-(function mobileHeaderBehavior() {
-  const topbar = document.getElementById("topbar");
-  const floatingBtn = document.getElementById("floatingToggler");
-  const mainNav = document.getElementById("mainNav");
-  const navbarToggler = document.querySelector(".navbar-toggler");
+(function navbarFix() {
+  document.addEventListener("DOMContentLoaded", () => {
+    const mainNav = document.getElementById("mainNav");
+    const toggler = document.getElementById("navToggler") || document.querySelector(".navbar-toggler");
+    if (!mainNav || !toggler || !window.bootstrap) return;
+    const collapse = bootstrap.Collapse.getOrCreateInstance(mainNav, { toggle: false });
 
-  if (!topbar || !floatingBtn || !mainNav || !navbarToggler) return;
+    toggler.addEventListener("click", (e) => {
+      e.preventDefault();
+      collapse.toggle();
+      const isOpen = mainNav.classList.contains("show");
+      toggler.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
 
-  const collapse = bootstrap.Collapse.getOrCreateInstance(mainNav, { toggle: false });
-
-  const isMobile = () => window.matchMedia("(max-width: 991.98px)").matches;
-
-  let lastY = window.scrollY;
-
-  function setHidden(hidden) {
-    if (!isMobile()) {
-      topbar.classList.remove("is-hidden");
-      floatingBtn.classList.remove("is-visible");
-      return;
-    }
-
-    if (hidden) {
-      topbar.classList.add("is-hidden");
-      floatingBtn.classList.add("is-visible");
-    } else {
-      topbar.classList.remove("is-hidden");
-      floatingBtn.classList.remove("is-visible");
-    }
-  }
-
-  function onScroll() {
-    if (!isMobile()) return;
-
-    const y = window.scrollY;
-    const goingDown = y > lastY;
-    const pastThreshold = y > 80;
-
-    // Si está abierto el menú, no ocultes el header
-    const isMenuOpen = mainNav.classList.contains("show");
-    if (isMenuOpen) {
-      setHidden(false);
-      lastY = y;
-      return;
-    }
-
-    // Oculta al bajar después de un umbral, muestra al subir
-    if (pastThreshold && goingDown) setHidden(true);
-    else setHidden(false);
-
-    lastY = y;
-  }
-
-  // Click en botón flotante: muestra header y abre menú
-  floatingBtn.addEventListener("click", () => {
-    setHidden(false);
-    collapse.show();
-  });
-
-  // Click en hamburguesa normal: asegura header visible (mobile)
-  navbarToggler.addEventListener("click", () => {
-    if (isMobile()) setHidden(false);
-    // Bootstrap ya togglea por data-bs-toggle, no hace falta collapse.toggle aquí
-  });
-
-  // Al hacer click en un link del menú: cierra
-  mainNav.querySelectorAll("a.nav-link").forEach(a => {
-    a.addEventListener("click", () => {
-      collapse.hide();
-      // Si estás scrolleado, vuelve a ocultar tras elegir (opcional)
-      if (isMobile() && window.scrollY > 80) {
-        setTimeout(() => setHidden(true), 200);
-      }
+    // Cierra al hacer click en un link del menu
+    mainNav.querySelectorAll("a.nav-link").forEach((a) => {
+      a.addEventListener("click", () => {
+        collapse.hide();
+        toggler.setAttribute("aria-expanded", "false");
+      });
     });
   });
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", () => {
-    // Resetea al cambiar de breakpoint
-    setHidden(false);
-  });
-
-  // estado inicial
-  setHidden(false);
 })();
 
-
-
 document.addEventListener("DOMContentLoaded", loadContent);
+

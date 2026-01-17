@@ -30,9 +30,14 @@ body{
 
 .shell{
   background:#fff;
-  border-radius:24px;
-  overflow:hidden; /* mantén esto (es el “marco” redondeado) */
+  /*border-radius:24px;*/
+  overflow: visible; /* ✅ sticky funciona */
   box-shadow:0 12px 40px rgba(0,0,0,.08);
+}
+
+.shell-body{
+  /*border-radius:24px;*/
+  overflow:hidden;   /* ✅ mantiene el marco recortado */
 }
 
 /* =========================
@@ -41,13 +46,38 @@ body{
 
 /* ✅ Sticky siempre arriba (desktop + mobile) */
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:1050;
-  background:#fff;
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+  background: #fff;
 }
 
-/* (si aún tienes JS viejo que usa esta clase, no rompe nada) */
+.topbar.is-hidden{
+  transform:none !important;
+}
+
+@media (max-width: 991.98px){
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 2000;           /* por sobre el hero */
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  /* Por si quedó alguna clase antigua */
+  .topbar.is-hidden{
+    transform: none !important;
+  }
+
+  /* Evita que el anchor quede tapado por el header */
+  section{
+    scroll-margin-top: 110px;
+  }
+}
+
 .topbar.is-hidden{
   transform:none !important;
 }
@@ -63,6 +93,18 @@ body{
   border:1px solid rgba(0,0,0,.12);
   background:#fff;
   box-shadow:0 10px 25px rgba(0,0,0,.12);
+}
+
+.navbar-toggler{
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
+#floatingToggler{
+  display:none !important;
 }
 
 /* Desktop: oculto (Bootstrap ya lo hace, esto refuerza) */
@@ -161,6 +203,11 @@ body{
     rgba(255,248,242,.85)
   );
   pointer-events:none;        /* deja pasar swipe */
+}
+
+.hero-card,
+.hero-overlay{
+  z-index: 1;
 }
 
 .hero-content{
@@ -673,14 +720,20 @@ body{
   line-height: 1.45;
 }
 
-/* Botón */
 .plan-btn {
   margin-top: 18px;
   border-radius: 14px;
   padding: 10px 14px;
 }
 
-/* Fondos por plan */
+@media (max-width: 768px){
+  #heroCarousel .carousel-indicators,
+  #heroCarousel .carousel-control-prev,
+  #heroCarousel .carousel-control-next{
+    display: none !important;
+  }
+}
+
 .plan-blue  { background: #e9f8fb; }
 .plan-peach { background: #fff2e6; }
 .plan-pink  { background: #fdecef; }
