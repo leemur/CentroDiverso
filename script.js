@@ -56,9 +56,9 @@ function formatPriceCLP(price) {
 // ===================== RENDER =====================
 function renderHero(hero) {
   if (!hero) return;
-  setText("heroTitle", hero.title);
-  setText("heroP1", hero.p1);
-  setText("heroP2", hero.p2);
+
+  // Fijos
+  setText("heroTitle", safeString(hero.title, "Centro Diverso"));
 
   const cta = byId("heroCta");
   if (cta) {
@@ -69,7 +69,82 @@ function renderHero(hero) {
       cta.setAttribute("rel", "noopener");
     }
   }
+
+  // Slides (texto variable)
+  const slides = Array.isArray(hero.slides) && hero.slides.length
+    ? hero.slides
+    : [{ p1: hero.p1, p2: hero.p2 }];
+
+  const carouselEl = document.getElementById("heroCarousel"); // agrega id a tu carousel wrapper
+  const slidesWrap = document.getElementById("heroSlides");   // agrega id a tu .carousel-inner
+
+  // Si no tienes carousel markup para multiples items, hacemos "rotación de texto" simple
+  // (mantiene tu HTML tal cual)
+  if (!carouselEl || !slidesWrap || !window.bootstrap || !window.bootstrap.Carousel) {
+    // Set initial
+    setText("heroP1", safeString(slides[0]?.p1));
+    setText("heroP2", safeString(slides[0]?.p2));
+
+    // Rotación simple si hay más de 1
+    if (slides.length > 1) {
+      if (window.__heroInterval) clearInterval(window.__heroInterval);
+      let i = 0;
+      window.__heroInterval = setInterval(() => {
+        i = (i + 1) % slides.length;
+        setText("heroP1", safeString(slides[i]?.p1));
+        setText("heroP2", safeString(slides[i]?.p2));
+      }, 4500);
+    }
+    return;
+  }
+
+  // Bootstrap Carousel: generamos N items, manteniendo título + CTA fijo "dentro" de cada slide
+  slidesWrap.innerHTML = slides.map((s, i) => `
+    <div class="carousel-item ${i === 0 ? "active" : ""}">
+      <div class="hero-content">
+        <div class="hero-real">
+          <h1 class="hero-title">${escapeHtml(safeString(hero.title, "Centro Diverso"))}</h1>
+          ${s?.p1 ? `<p class="hero-sub">${escapeHtml(safeString(s.p1))}</p>` : ""}
+          ${s?.p2 ? `<p class="hero-sub">${escapeHtml(safeString(s.p2))}</p>` : ""}
+          <a href="${escapeAttr(safeString(hero.ctaUrl, "#"))}"
+             target="_blank" rel="noopener"
+             class="btn btn-cta">
+            ${escapeHtml(safeString(hero.ctaText, "Solicita Información"))}
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  // Ocultamos el contenido original (el que tenía heroP1/heroP2), porque ahora vive en items
+  const heroContent = byId("heroContent");
+  const heroReal = byId("heroReal");
+  if (heroReal) heroReal.style.display = "none";
+
+  // Re-inicializar carrusel
+  const instance = window.bootstrap.Carousel.getInstance(carouselEl);
+  if (instance) instance.dispose();
+
+  new window.bootstrap.Carousel(carouselEl, {
+    interval: slides.length > 1 ? 4500 : false,
+    ride: slides.length > 1 ? "carousel" : false,
+    pause: "hover",
+    touch: true,
+    wrap: true
+  });
 }
+
+/* helpers seguros (si no los tienes) */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/`/g, "&#096;");
+}
+
 
 function renderHistoria(historia) {
   if (!historia) return;
@@ -131,7 +206,7 @@ function renderPlanes(planes) {
   const grid = byId("planesGrid");
   if (!grid) return;
 
-  // Si agregaste id="planesTitle" en HTML, descomenta:
+  // Si quieres setear título desde JSON:
   // setText("planesTitle", planes?.title);
 
   const items = planes?.items;
@@ -139,25 +214,48 @@ function renderPlanes(planes) {
 
   grid.innerHTML = "";
 
+  // Para centrar siempre el row (por si el HTML no lo trae)
+  grid.classList.add("g-4", "justify-content-center");
+
+  const bgByIndex = ["plan-blue", "plan-peach", "plan-pink"];
+
+  const textToLis = (text) => {
+    const raw = safeString(text);
+
+    // separa por líneas, limpia "- " y filtra vacíos
+    const lines = raw
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => l.replace(/^-+\s*/, "")); // quita "- " al inicio
+
+    return lines.map((t) => `<li>${escapeHtml(t)}</li>`).join("");
+  };
+
   items.forEach((it, idx) => {
     const col = document.createElement("div");
-    col.className = "col-md-4";
-
-    const planClass =
-      idx === 0 ? "plan plan-basic" : idx === 1 ? "plan plan-std" : "plan plan-prem";
+    col.className = "col-12 col-md-6 col-lg-4";
 
     const price = formatPriceCLP(it.price);
+    const bgClass = bgByIndex[idx] || "plan-blue";
 
     col.innerHTML = `
-      <div class="${planClass}">
-        <h3>${escapeHtml(safeString(it.name))}</h3>
-        <div class="price">${escapeHtml(price)}</div>
-        <p>${escapeHtml(safeString(it.text))}</p>
+      <div class="plan-card ${bgClass}">
+        <div class="plan-head">
+          <h3 class="plan-title">${escapeHtml(safeString(it.name))}</h3>
+          <div class="plan-price">${escapeHtml(safeString(price))}</div>
+        </div>
+
+        <ul class="plan-list">
+          ${textToLis(it.text)}
+        </ul>
       </div>
     `;
+
     grid.appendChild(col);
   });
 }
+
 
 function renderFooter(footer) {
   if (!footer) return;
