@@ -52,12 +52,13 @@ function formatPriceCLP(price) {
 function renderHero(hero) {
   if (!hero) return;
 
-  // Fijos
   setText("heroTitle", safeString(hero.title, "Centro Diverso"));
+  setText("heroP1", safeString(hero.p1, ""));
+  setText("heroP2", safeString(hero.p2, ""));
 
   const cta = byId("heroCta");
   if (cta) {
-    cta.textContent = safeString(hero.ctaText, cta.textContent);
+    cta.textContent = safeString(hero.ctaText, "Solicita Información");
     if (hero.ctaUrl) {
       cta.setAttribute("href", hero.ctaUrl);
       cta.setAttribute("target", "_blank");
@@ -65,67 +66,29 @@ function renderHero(hero) {
     }
   }
 
-  // Slides (texto variable)
-  const slides = Array.isArray(hero.slides) && hero.slides.length
-    ? hero.slides
-    : [{ p1: hero.p1, p2: hero.p2 }];
+  const heroContent = byId("heroContent");
+  if (heroContent) heroContent.classList.add("is-loaded");
+}
+  // Bootstrap Carousel: generamos N items, manteniendo título + CTA fijo "dentro" de cada slide
+function initHeroCarousel() {
+  const carouselEl = document.getElementById("heroCarousel");
+  if (!carouselEl || !window.bootstrap?.Carousel) return;
 
-  const carouselEl = document.getElementById("heroCarousel"); // agrega id a tu carousel wrapper
-  const slidesWrap = document.getElementById("heroSlides");   // agrega id a tu .carousel-inner
-
-  // Si no tienes carousel markup para multiples items, hacemos "rotación de texto" simple
-  // (mantiene tu HTML tal cual)
-  if (!carouselEl || !slidesWrap || !window.bootstrap || !window.bootstrap.Carousel) {
-    // Set initial
-    setText("heroP1", safeString(slides[0]?.p1));
-    setText("heroP2", safeString(slides[0]?.p2));
-
-    // Rotación simple si hay más de 1
-    if (slides.length > 1) {
-      if (window.__heroInterval) clearInterval(window.__heroInterval);
-      let i = 0;
-      window.__heroInterval = setInterval(() => {
-        i = (i + 1) % slides.length;
-        setText("heroP1", safeString(slides[i]?.p1));
-        setText("heroP2", safeString(slides[i]?.p2));
-      }, 4500);
-    }
-    return;
+  // Asegura un active válido (solo por seguridad)
+  const items = carouselEl.querySelectorAll(".carousel-item");
+  if (items.length && !carouselEl.querySelector(".carousel-item.active")) {
+    items[0].classList.add("active");
   }
 
-  // Bootstrap Carousel: generamos N items, manteniendo título + CTA fijo "dentro" de cada slide
-  slidesWrap.innerHTML = slides.map((s, i) => `
-    <div class="carousel-item ${i === 0 ? "active" : ""}">
-      <div class="hero-content">
-        <div class="hero-real">
-          <h1 class="hero-title">${escapeHtml(safeString(hero.title, "Centro Diverso"))}</h1>
-          ${s?.p1 ? `<p class="hero-sub">${escapeHtml(safeString(s.p1))}</p>` : ""}
-          ${s?.p2 ? `<p class="hero-sub">${escapeHtml(safeString(s.p2))}</p>` : ""}
-          <a href="${escapeAttr(safeString(hero.ctaUrl, "#"))}"
-             target="_blank" rel="noopener"
-             class="btn btn-cta">
-            ${escapeHtml(safeString(hero.ctaText, "Solicita Información"))}
-          </a>
-        </div>
-      </div>
-    </div>
-  `).join("");
-
-  // Ocultamos el contenido original (el que tenía heroP1/heroP2), porque ahora vive en items
-  const heroContent = byId("heroContent");
-  const heroReal = byId("heroReal");
-  if (heroReal) heroReal.style.display = "none";
-
-  // Re-inicializar carrusel
-  const instance = window.bootstrap.Carousel.getInstance(carouselEl);
-  if (instance) instance.dispose();
+  // Inicializa solo si NO existe instancia
+  if (window.bootstrap.Carousel.getInstance(carouselEl)) return;
 
   new window.bootstrap.Carousel(carouselEl, {
-    interval: slides.length > 1 ? 4500 : false,
-    ride: slides.length > 1 ? "carousel" : false,
+    interval: items.length > 1 ? 4500 : false,
+    ride: items.length > 1 ? "carousel" : false,
+    wrap: true,
     pause: "hover",
-    touch: true,
-    wrap: true
+    touch: true
   });
 }
 
