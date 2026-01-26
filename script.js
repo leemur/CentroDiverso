@@ -1,7 +1,10 @@
+/* ===================== CONFIG ===================== */
+//const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLjEvM2G2yKb_gmEz8Vqd6W4lvYIpucCrneEGHxmyh2BVEvivi88VqcbIVqR4o19GWTOVT56HVZ3fC6WUP7kyquCf8Zj-lGX309AfOpNuXAUwdte6x1oY5VT7jmjYak5f10zIoZONFWy_zBrAOlAVIxG_GA6L4GnMESN2pL2ONj3MwJy9Smk33weJzQ1GIc1qab4w52KH9H4VByPFx2DXhvelmkx438n3tfk158tCRtdhE2gOQ5RYp0zVewrsDrFR8SOrW-oyBU66PoB9AmKQdVeG0YL5w&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
 const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
+/* ===================== HELPERS ===================== */
 const byId = (id) => document.getElementById(id);
 
 function setText(id, value) {
@@ -10,33 +13,31 @@ function setText(id, value) {
   if (value === undefined || value === null) return;
   el.textContent = String(value);
 }
-
 function setHref(id, url) {
   const el = byId(id);
   if (!el) return;
   if (!url) return;
   el.setAttribute("href", String(url));
 }
-
 function setHtml(id, html) {
   const el = byId(id);
   if (!el) return;
   el.innerHTML = html;
 }
-
 function safeString(v, fallback = "") {
   return v === undefined || v === null ? fallback : String(v);
 }
-
 function escapeHtml(str) {
   return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
-
+function escapeAttr(str) {
+  return escapeHtml(String(str)).replace(/`/g, "&#096;");
+}
 function formatPriceCLP(price) {
   if (price === undefined || price === null) return "";
   if (typeof price === "string") return price;
@@ -44,11 +45,10 @@ function formatPriceCLP(price) {
   const n = Number(price);
   if (!Number.isFinite(n)) return String(price);
 
-  // 19 -> $19.000 (si tu JSON viene como 19, 29, 39)
   return `$${n.toLocaleString("es-CL")}`;
 }
 
-// ===================== RENDER =====================
+/* ===================== RENDER: HERO ===================== */
 function renderHero(hero) {
   if (!hero) return;
 
@@ -58,9 +58,12 @@ function renderHero(hero) {
 
   const cta = byId("heroCta");
   if (cta) {
-    cta.textContent = safeString(hero.ctaText, "Solicita Información");
-    if (hero.ctaUrl) {
-      cta.setAttribute("href", hero.ctaUrl);
+    const ctaText = hero.ctaText ?? hero.cta_text;
+    const ctaUrl = hero.ctaUrl ?? hero.cta_url;
+
+    cta.textContent = safeString(ctaText, "Solicita Información");
+    if (ctaUrl) {
+      cta.setAttribute("href", String(ctaUrl).trim());
       cta.setAttribute("target", "_blank");
       cta.setAttribute("rel", "noopener");
     }
@@ -69,45 +72,12 @@ function renderHero(hero) {
   const heroContent = byId("heroContent");
   if (heroContent) heroContent.classList.add("is-loaded");
 }
-  // Bootstrap Carousel: generamos N items, manteniendo título + CTA fijo "dentro" de cada slide
-function initHeroCarousel() {
-  const carouselEl = document.getElementById("heroCarousel");
-  if (!carouselEl || !window.bootstrap?.Carousel) return;
 
-  // Asegura un active válido (solo por seguridad)
-  const items = carouselEl.querySelectorAll(".carousel-item");
-  if (items.length && !carouselEl.querySelector(".carousel-item.active")) {
-    items[0].classList.add("active");
-  }
-
-  // Inicializa solo si NO existe instancia
-  if (window.bootstrap.Carousel.getInstance(carouselEl)) return;
-
-  new window.bootstrap.Carousel(carouselEl, {
-    interval: items.length > 1 ? 4500 : false,
-    ride: items.length > 1 ? "carousel" : false,
-    wrap: true,
-    pause: "hover",
-    touch: true
-  });
-}
-
-/* helpers seguros (si no los tienes) */
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-function escapeAttr(str) {
-  return escapeHtml(str).replace(/`/g, "&#096;");
-}
-
-
+/* ===================== RENDER: HISTORIA ===================== */
 function renderHistoria(historia) {
   if (!historia) return;
 
-  setText("historiaTitle", historia.title);
+  setText("historiaTitle", safeString(historia.title, ""));
 
   if (Array.isArray(historia.paragraphs)) {
     const html = historia.paragraphs
@@ -124,6 +94,7 @@ function renderHistoria(historia) {
   }
 }
 
+/* ===================== RENDER: ESPECIALIDADES ===================== */
 function renderEspecialidades(especialidades) {
   const grid = byId("especialidadesGrid");
   if (!grid) return;
@@ -147,7 +118,9 @@ function renderEspecialidades(especialidades) {
         <header class="specialty-badge">${escapeHtml(safeString(it.badge))}</header>
 
         <div class="specialty-media">
-          <img src="${imgSrc}" alt="${escapeHtml(safeString(it.badge))}" class="specialty-img">
+          <img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(
+      safeString(it.badge)
+    )}" class="specialty-img">
         </div>
 
         <div class="specialty-body">
@@ -155,38 +128,30 @@ function renderEspecialidades(especialidades) {
         </div>
       </article>
     `;
-
     grid.appendChild(col);
   });
 }
 
+/* ===================== RENDER: PLANES ===================== */
 function renderPlanes(planes) {
   const grid = byId("planesGrid");
   if (!grid) return;
-
-  // Si quieres setear título desde JSON:
-  // setText("planesTitle", planes?.title);
 
   const items = planes?.items;
   if (!Array.isArray(items)) return;
 
   grid.innerHTML = "";
-
-  // Para centrar siempre el row (por si el HTML no lo trae)
   grid.classList.add("g-4", "justify-content-center");
 
   const bgByIndex = ["plan-blue", "plan-peach", "plan-pink"];
 
   const textToLis = (text) => {
     const raw = safeString(text);
-
-    // separa por líneas, limpia "- " y filtra vacíos
     const lines = raw
       .split(/\r?\n/)
       .map((l) => l.trim())
       .filter(Boolean)
-      .map((l) => l.replace(/^-+\s*/, "")); // quita "- " al inicio
-
+      .map((l) => l.replace(/^-+\s*/, ""));
     return lines.map((t) => `<li>${escapeHtml(t)}</li>`).join("");
   };
 
@@ -209,18 +174,157 @@ function renderPlanes(planes) {
         </ul>
       </div>
     `;
-
     grid.appendChild(col);
   });
 }
 
+function renderTestimonios(testimonios) {
+  // Título / subtítulo (tu HTML ya los tiene)
+  setText("testimoniosTitle", testimonios?.title || "Testimonios");
+  setText("testimoniosSubtitle", testimonios?.subtitle || "Lo que dicen las familias");
 
+  const track = document.getElementById("testimoniosTrack");
+  if (!track) return;
+
+  const items = testimonios?.items;
+  if (!Array.isArray(items) || items.length === 0) {
+    track.innerHTML = "";
+    return;
+  }
+
+  // ✅ Colores permitidos + fallback si viene cualquier cosa
+  const COLOR_CLASS = {
+    pink: "t-card--pink",
+    peach: "t-card--peach",
+    teal: "t-card--teal",
+    yellow: "t-card--yellow",
+    blue: "t-card--blue",
+    green: "t-card--green",
+    black: "t-card--blue" // por si ponen "black" en el excel
+  };
+
+  const FALLBACKS = ["t-card--peach", "t-card--pink", "t-card--teal", "t-card--yellow", "t-card--blue", "t-card--green"];
+  const pickColorClass = (c, i) => {
+    const key = String(c || "").trim().toLowerCase();
+    return COLOR_CLASS[key] || FALLBACKS[i % FALLBACKS.length];
+  };
+
+  track.innerHTML = items
+    .map((it, i) => {
+      const name = safeString(it.name, "");
+      const role = safeString(it.role, "");
+      const text = safeString(it.text, "");
+      const img  = safeString(it.img, "");
+      const colorClass = pickColorClass(it.color, i);
+
+      return `
+        <div class="t-col">
+          <article class="t-card ${colorClass}">
+            <div class="t-avatar">
+              ${
+                img
+                  ? `<img src="${escapeAttr(img)}" alt="${escapeAttr(name || "Testimonio")}" />`
+                  : `<div class="t-avatar-fallback"></div>`
+              }
+            </div>
+
+            <div class="t-quote">“</div>
+
+            <p class="t-text">${escapeHtml(text)}</p>
+
+            <div class="t-person">
+              <div class="t-name">${escapeHtml(name)}</div>
+              <div class="t-role">${escapeHtml(role)}</div>
+            </div>
+          </article>
+        </div>
+      `;
+    })
+    .join("");
+
+  // Deja que el DOM pinte antes de calcular anchos
+  requestAnimationFrame(() => initTestimoniosSlider());
+}
+
+function initTestimoniosSlider() {
+  const track = document.getElementById("testimoniosTrack");
+  if (!track) return;
+
+  const section = track.closest(".testimonios-section") || document;
+  const prev = section.querySelector(".t-btn.prev");
+  const next = section.querySelector(".t-btn.next");
+  if (!prev || !next) return;
+
+  const cards = Array.from(track.children);
+  if (!cards.length) return;
+
+  // ✅ Evita que se dupliquen listeners si renderizas 2 veces (cache + fetch)
+  prev.replaceWith(prev.cloneNode(true));
+  next.replaceWith(next.cloneNode(true));
+  const prevBtn = section.querySelector(".t-btn.prev");
+  const nextBtn = section.querySelector(".t-btn.next");
+
+  let index = 0;
+
+  const getVisible = () => {
+    const w = window.innerWidth;
+    if (w < 768) return 1;
+    if (w < 992) return 2;
+    return 4;
+  };
+
+  const getGap = () => {
+    const style = window.getComputedStyle(track);
+    return parseFloat(style.gap || style.columnGap || "0") || 0;
+  };
+
+  const getStep = () => {
+    const gap = getGap();
+    const cardW = cards[0].getBoundingClientRect().width;
+    return cardW + gap;
+  };
+
+  const update = () => {
+    const visible = getVisible();
+    const maxIndex = Math.max(0, cards.length - visible);
+
+    if (index > maxIndex) index = 0;
+    if (index < 0) index = maxIndex;
+
+    track.style.transform = `translateX(-${index * getStep()}px)`;
+  };
+
+  nextBtn.addEventListener("click", () => {
+    const visible = getVisible();
+    const maxIndex = Math.max(0, cards.length - visible);
+    index++;
+    if (index > maxIndex) index = 0; // 🔁 vuelve al inicio
+    update();
+  });
+
+  prevBtn.addEventListener("click", () => {
+    const visible = getVisible();
+    const maxIndex = Math.max(0, cards.length - visible);
+    index--;
+    if (index < 0) index = maxIndex; // 🔁 va al final
+    update();
+  });
+
+  // Recalcular cuando cargan imágenes / resize
+  track.querySelectorAll("img").forEach((img) => img.addEventListener("load", update, { once: true }));
+  window.addEventListener("resize", () => requestAnimationFrame(update));
+
+  update();
+}
+
+
+/* ===================== RENDER: FOOTER ===================== */
 function renderFooter(footer) {
   if (!footer) return;
 
   setText("footerPhoneText", footer.phone);
   setText("footerAddress", footer.address);
-  setText("footerFollowLabel", footer.followLabel);
+  setText("footerFollowLabel", footer.followLabel ?? footer.follow_label);
 
   setHref("linkWhatsapp", footer.social?.whatsapp);
   setHref("linkFacebook", footer.social?.facebook);
@@ -236,23 +340,24 @@ function renderFooter(footer) {
   });
 }
 
+/* ===================== APPLY + LOAD ===================== */
 function applyContent(data) {
   renderHero(data.hero);
   renderHistoria(data.historia);
   renderEspecialidades(data.especialidades);
   renderPlanes(data.planes);
+  renderTestimonios(data.testimonios);
   renderFooter(data.footer);
 
-  document.querySelectorAll("[data-content]").forEach(el => el.classList.add("ready"));
+  document.querySelectorAll("[data-content]").forEach((el) => el.classList.add("ready"));
 
   const heroContent = document.getElementById("heroContent");
   if (heroContent) heroContent.classList.add("is-loaded");
 }
 
-// ===================== LOAD =====================
 async function loadContent() {
   try {
-    // 1) pinta desde cache si existe (instantáneo)
+    // 1) cache
     const cachedRaw = localStorage.getItem(CACHE_KEY);
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
@@ -261,29 +366,26 @@ async function loadContent() {
       }
     }
 
-    // 2) trae contenido fresco
+    // 2) fetch fresh
     const res = await fetch(CONTENT_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
     applyContent(data);
     localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-    const heroContent = document.getElementById("heroContent");
-    if (heroContent) heroContent.classList.add("is-loaded");    if (heroContent) {
-      heroContent.classList.add("loaded");
-    }
-    
   } catch (err) {
-    console.error("Error cargando contenido desde Google Sheets:", err);
+    console.error("Error cargando contenido:", err);
   }
 }
 
+/* ===================== NAVBAR FIX ===================== */
 (function navbarFix() {
   document.addEventListener("DOMContentLoaded", () => {
     const mainNav = document.getElementById("mainNav");
     const toggler = document.getElementById("navToggler") || document.querySelector(".navbar-toggler");
     if (!mainNav || !toggler || !window.bootstrap) return;
-    const collapse = bootstrap.Collapse.getOrCreateInstance(mainNav, { toggle: false });
+
+    const collapse = window.bootstrap.Collapse.getOrCreateInstance(mainNav, { toggle: false });
 
     toggler.addEventListener("click", (e) => {
       e.preventDefault();
@@ -292,7 +394,6 @@ async function loadContent() {
       toggler.setAttribute("aria-expanded", isOpen ? "true" : "false");
     });
 
-    // Cierra al hacer click en un link del menu
     mainNav.querySelectorAll("a.nav-link").forEach((a) => {
       a.addEventListener("click", () => {
         collapse.hide();
@@ -302,5 +403,5 @@ async function loadContent() {
   });
 })();
 
+/* ===================== INIT ===================== */
 document.addEventListener("DOMContentLoaded", loadContent);
-
