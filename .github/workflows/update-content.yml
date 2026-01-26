@@ -18,8 +18,15 @@ jobs:
       - name: Fetch JSON from Apps Script
         run: |
           mkdir -p assets/data
-          curl -L --fail "https://script.google.com/macros/s/AKfycbwQRrNRJ4fF4kpiyUG4w8HYVp68JbSW2SmpTImz3PCwsP_15nvMoMk-f2sRVdgKYVP1/exec" \
-            -o assets/data/content.json
+
+          # 1) Descargar a archivo temporal (con reintentos)
+          curl -L --fail --retry 3 --retry-delay 2 --compressed \
+            "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLgXYIjKhTDY8qyiMdFPOy8OU35plO_-CE9DDWmSGgUGDw1iEIRLUyYC2_OJmykK3XQXhLiFlVAAiOKWwH1-GTk4jadeooqz3TeYYhTSiZFZcrl03z-L9bgPF2TMNdCCGv-1HCIYnHlhVbwUs8nyRTtxO9VXekJJLY6WzDZtZKrZMT4sxCBZ6AwhiaiyIncuIxIKOCZB1fqD5OsRraP1LoPPt0ILpX2CqAtJIkLl17huMZJqpote9cLZ7gXQOgCvZa5IEWHqIP3m6W_oONZYRLFg4CMcKQ&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe" \
+            -o assets/data/content.raw.json
+
+          # 2) (Opcional) Normalizar/validar JSON para commits consistentes
+          python -m json.tool assets/data/content.raw.json > assets/data/content.json
+          rm -f assets/data/content.raw.json
 
       - name: Commit changes (if any)
         run: |
