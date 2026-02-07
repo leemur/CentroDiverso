@@ -1,6 +1,6 @@
 /* ===================== CONFIG ===================== */
-//const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiUVv52XyAWqEul6dT8eOR3GEHNbHmd4oxBwqPNBs6mYiugrBpCj9wDA1BnNtVBTAK51MvEi8UTfwGuuGT-OqtLINxK4VUxHhLUVXbZsR8i3chgnvjQv1hqcN0y_j9cE163kehBtuJBqUNKHXTpvaciL2ZM6verIVGzeWQiuh5X50rENGKdzRKBWJUqc_d4kU7wXb-8u6A4zYsTS-wMvwZZizYhsRDPx-qgnOUArOQKjjoAtteGU7IKT7kjuewnO_QpBoMFHfZ9yJhVMDZq832Ghmuhig&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
-const CONTENT_URL = "./assets/data/content.json";
+const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiUVv52XyAWqEul6dT8eOR3GEHNbHmd4oxBwqPNBs6mYiugrBpCj9wDA1BnNtVBTAK51MvEi8UTfwGuuGT-OqtLINxK4VUxHhLUVXbZsR8i3chgnvjQv1hqcN0y_j9cE163kehBtuJBqUNKHXTpvaciL2ZM6verIVGzeWQiuh5X50rENGKdzRKBWJUqc_d4kU7wXb-8u6A4zYsTS-wMvwZZizYhsRDPx-qgnOUArOQKjjoAtteGU7IKT7kjuewnO_QpBoMFHfZ9yJhVMDZq832Ghmuhig&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
+//const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -230,9 +230,22 @@ function renderTestimonios(testimonios) {
 
     const colorClass = pickColorClass(it.color, i);
 
+    const corners = ["tl","tr","bl","br"];
+    const sizes = ["s1","s2","s3"];
+
+    const blobCount = Math.floor(Math.random() * 4); // 0–3 blobs
+    let blobs = "";
+
+    for(let b = 0; b < blobCount; b++){
+      const corner = corners[Math.floor(Math.random() * corners.length)];
+      const size = sizes[Math.floor(Math.random() * sizes.length)];
+      blobs += `<span class="t-blob ${corner} ${size}"></span>`;
+    }
+
     return `
       <div class="t-col">
         <article class="t-card ${colorClass}">
+          ${blobs}
           <div class="t-head">
             ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
             ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
@@ -254,77 +267,53 @@ function initTestimoniosSlider() {
   const section = track.closest(".testimonios-section") || document;
   const prevBtn = section.querySelector(".t-btn.prev");
   const nextBtn = section.querySelector(".t-btn.next");
-  const viewport = section.querySelector(".t-viewport");
-  if (!prevBtn || !nextBtn || !viewport) return;
+  if (!prevBtn || !nextBtn) return;
 
   const slides = Array.from(track.children); // .t-col
   if (!slides.length) return;
 
-  // --- limpiar instancia previa (muy importante por cache + fetch) ---
+  // limpiar instancia previa
   if (track._tState?.timer) clearInterval(track._tState.timer);
   if (track._tState?.abort) track._tState.abort.abort();
 
   const abort = new AbortController();
-  const state = {
-    index: 0,
-    timer: null,
-    abort,
-    isAnimating: false
-  };
+  const state = { index: 0, timer: null, abort, locked: false };
   track._tState = state;
+
+  // IMPORTANTÍSIMO: step real = ancho del slide real (no viewport)
+  const step = () => Math.round(slides[0].getBoundingClientRect().width);
 
   const maxIndex = () => Math.max(0, slides.length - 1);
 
-  // step EXACTO: ancho visible del viewport
-  const step = () => Math.round(viewport.getBoundingClientRect().width);
-
-  const clampIndex = () => {
-    const m = maxIndex();
-    if (state.index > m) state.index = 0;
-    if (state.index < 0) state.index = m;
-  };
-
-  const update = (animate = true) => {
-    clampIndex();
-
-    // evita que una transición anterior deje el carrusel “a medio camino”
-    if (!animate) track.style.transition = "none";
-    else track.style.transition = "transform .45s ease";
-
+  const update = () => {
     const w = step();
     track.style.transform = `translate3d(-${state.index * w}px, 0, 0)`;
-
-    if (!animate) {
-      // fuerza reflow y devuelve transición
-      track.getBoundingClientRect();
-      track.style.transition = "transform .45s ease";
-    }
   };
 
   const goNext = () => {
-    if (state.isAnimating) return;
-    state.isAnimating = true;
+    if (state.locked) return;
+    state.locked = true;
     state.index = state.index >= maxIndex() ? 0 : state.index + 1;
-    update(true);
+    update();
   };
 
   const goPrev = () => {
-    if (state.isAnimating) return;
-    state.isAnimating = true;
+    if (state.locked) return;
+    state.locked = true;
     state.index = state.index <= 0 ? maxIndex() : state.index - 1;
-    update(true);
+    update();
   };
 
-  // cuando termina la transición, liberamos el lock
-  track.addEventListener("transitionend", () => {
-    state.isAnimating = false;
-  }, { signal: abort.signal });
+  track.addEventListener(
+    "transitionend",
+    () => { state.locked = false; },
+    { signal: abort.signal }
+  );
 
   const startAuto = () => {
     if (state.timer) clearInterval(state.timer);
     state.timer = setInterval(() => {
-      // si está animando, no empujes otro movimiento encima
-      if (!state.isAnimating) goNext();
+      if (!state.locked) goNext();
     }, 4500);
   };
 
@@ -333,61 +322,24 @@ function initTestimoniosSlider() {
     state.timer = null;
   };
 
-  nextBtn.addEventListener("click", () => {
-    stopAuto();
-    goNext();
-    startAuto();
-  }, { signal: abort.signal });
+  nextBtn.addEventListener("click", () => { stopAuto(); goNext(); startAuto(); }, { signal: abort.signal });
+  prevBtn.addEventListener("click", () => { stopAuto(); goPrev(); startAuto(); }, { signal: abort.signal });
 
-  prevBtn.addEventListener("click", () => {
-    stopAuto();
-    goPrev();
-    startAuto();
-  }, { signal: abort.signal });
-
-  // pausa al hover (desktop)
   section.addEventListener("mouseenter", stopAuto, { signal: abort.signal });
   section.addEventListener("mouseleave", startAuto, { signal: abort.signal });
 
-  // resize: recalcula posición exacta sin animar (para que no “salte”)
-  window.addEventListener("resize", () => {
-    requestAnimationFrame(() => update(false));
-  }, { signal: abort.signal });
+  window.addEventListener("resize", () => requestAnimationFrame(update), { signal: abort.signal });
 
-  // init: deja todo perfecto antes de arrancar el auto
+  // init
   requestAnimationFrame(() => {
     state.index = 0;
-    state.isAnimating = false;
-    update(false);
-
-    // segundo ajuste por si cambian fuentes/layout al cargar
-    setTimeout(() => update(false), 120);
-
+    // asegura transición para que no “pegue”
+    track.style.transition = "transform .45s ease";
+    update();
     startAuto();
   });
 }
 
-/* ===================== RENDER: FOOTER ===================== */
-function renderFooter(footer) {
-  if (!footer) return;
-
-  setText("footerPhoneText", footer.phone);
-  setText("footerAddress", footer.address);
-  setText("footerFollowLabel", footer.followLabel ?? footer.follow_label);
-
-  setHref("linkWhatsapp", footer.social?.whatsapp);
-  setHref("linkFacebook", footer.social?.facebook);
-  setHref("linkInstagram", footer.social?.instagram);
-  setHref("linkLinkedin", footer.social?.linkedin);
-
-  ["linkWhatsapp", "linkFacebook", "linkInstagram", "linkLinkedin"].forEach((id) => {
-    const a = byId(id);
-    if (a && a.getAttribute("href") && a.getAttribute("href") !== "#") {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener");
-    }
-  });
-}
 
 /* ===================== APPLY + LOAD ===================== */
 function applyContent(data) {
