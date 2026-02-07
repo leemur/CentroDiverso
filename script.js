@@ -1,6 +1,6 @@
 /* ===================== CONFIG ===================== */
-//const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLjEvM2G2yKb_gmEz8Vqd6W4lvYIpucCrneEGHxmyh2BVEvivi88VqcbIVqR4o19GWTOVT56HVZ3fC6WUP7kyquCf8Zj-lGX309AfOpNuXAUwdte6x1oY5VT7jmjYak5f10zIoZONFWy_zBrAOlAVIxG_GA6L4GnMESN2pL2ONj3MwJy9Smk33weJzQ1GIc1qab4w52KH9H4VByPFx2DXhvelmkx438n3tfk158tCRtdhE2gOQ5RYp0zVewrsDrFR8SOrW-oyBU66PoB9AmKQdVeG0YL5w&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
-const CONTENT_URL = "./assets/data/content.json";
+const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiUVv52XyAWqEul6dT8eOR3GEHNbHmd4oxBwqPNBs6mYiugrBpCj9wDA1BnNtVBTAK51MvEi8UTfwGuuGT-OqtLINxK4VUxHhLUVXbZsR8i3chgnvjQv1hqcN0y_j9cE163kehBtuJBqUNKHXTpvaciL2ZM6verIVGzeWQiuh5X50rENGKdzRKBWJUqc_d4kU7wXb-8u6A4zYsTS-wMvwZZizYhsRDPx-qgnOUArOQKjjoAtteGU7IKT7kjuewnO_QpBoMFHfZ9yJhVMDZq832Ghmuhig&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
+//const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -179,7 +179,6 @@ function renderPlanes(planes) {
 }
 
 function renderTestimonios(testimonios) {
-  // Título / subtítulo (tu HTML ya los tiene)
   setText("testimoniosTitle", testimonios?.title || "Testimonios");
   setText("testimoniosSubtitle", testimonios?.subtitle || "Lo que dicen las familias");
 
@@ -189,10 +188,13 @@ function renderTestimonios(testimonios) {
   const items = testimonios?.items;
   if (!Array.isArray(items) || items.length === 0) {
     track.innerHTML = "";
+    // si no hay items, mata slider
+    if (track._tState?.abort) track._tState.abort.abort();
+    if (track._tState?.timer) clearInterval(track._tState.timer);
+    track._tState = null;
     return;
   }
 
-  // ✅ Colores permitidos + fallback si viene cualquier cosa
   const COLOR_CLASS = {
     pink: "t-card--pink",
     peach: "t-card--peach",
@@ -200,50 +202,49 @@ function renderTestimonios(testimonios) {
     yellow: "t-card--yellow",
     blue: "t-card--blue",
     green: "t-card--green",
-    black: "t-card--blue" // por si ponen "black" en el excel
+    black: "t-card--blue"
   };
 
-  const FALLBACKS = ["t-card--peach", "t-card--pink", "t-card--teal", "t-card--yellow", "t-card--blue", "t-card--green"];
+  const FALLBACKS = [
+    "t-card--peach",
+    "t-card--pink",
+    "t-card--teal",
+    "t-card--yellow",
+    "t-card--blue",
+    "t-card--green"
+  ];
+
   const pickColorClass = (c, i) => {
     const key = String(c || "").trim().toLowerCase();
     return COLOR_CLASS[key] || FALLBACKS[i % FALLBACKS.length];
   };
 
-  track.innerHTML = items
-    .map((it, i) => {
-      const name = safeString(it.name, "");
-      const role = safeString(it.role, "");
-      const text = safeString(it.text, "");
-      const img  = safeString(it.img, "");
-      const colorClass = pickColorClass(it.color, i);
+  track.innerHTML = items.map((it, i) => {
+    const text = safeString(it.text, "");
 
-      return `
-        <div class="t-col">
-          <article class="t-card ${colorClass}">
-            <div class="t-avatar">
-              ${
-                img
-                  ? `<img src="${escapeAttr(img)}" alt="${escapeAttr(name || "Testimonio")}" />`
-                  : `<div class="t-avatar-fallback"></div>`
-              }
-            </div>
+    const name = safeString(it.name, "");
+    const nombreNino = safeString(
+      it.nombreNino ?? it.nombre_nino ?? it.childName ?? it.nino ?? "",
+      ""
+    );
 
-            <div class="t-quote">“</div>
+    const colorClass = pickColorClass(it.color, i);
 
-            <p class="t-text">${escapeHtml(text)}</p>
+    return `
+      <div class="t-col">
+        <article class="t-card ${colorClass}">
+          <div class="t-head">
+            ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
+            ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
+          </div>
+          <p class="t-text">${escapeHtml(text)}</p>
+        </article>
+      </div>
+    `;
+  }).join("");
 
-            <div class="t-person">
-              <div class="t-name">${escapeHtml(name)}</div>
-              <div class="t-role">${escapeHtml(role)}</div>
-            </div>
-          </article>
-        </div>
-      `;
-    })
-    .join("");
-
-  // Deja que el DOM pinte antes de calcular anchos
-  requestAnimationFrame(() => initTestimoniosSlider());
+  // Inicia slider después de pintar DOM (doble RAF = más estable con fuentes/layout)
+  requestAnimationFrame(() => requestAnimationFrame(() => initTestimoniosSlider()));
 }
 
 function initTestimoniosSlider() {
@@ -251,72 +252,120 @@ function initTestimoniosSlider() {
   if (!track) return;
 
   const section = track.closest(".testimonios-section") || document;
-  const prev = section.querySelector(".t-btn.prev");
-  const next = section.querySelector(".t-btn.next");
-  if (!prev || !next) return;
-
-  const cards = Array.from(track.children);
-  if (!cards.length) return;
-
-  // ✅ Evita que se dupliquen listeners si renderizas 2 veces (cache + fetch)
-  prev.replaceWith(prev.cloneNode(true));
-  next.replaceWith(next.cloneNode(true));
   const prevBtn = section.querySelector(".t-btn.prev");
   const nextBtn = section.querySelector(".t-btn.next");
+  const viewport = section.querySelector(".t-viewport");
+  if (!prevBtn || !nextBtn || !viewport) return;
 
-  let index = 0;
+  const slides = Array.from(track.children); // .t-col
+  if (!slides.length) return;
 
-  const getVisible = () => {
-    const w = window.innerWidth;
-    if (w < 768) return 1;
-    if (w < 992) return 2;
-    return 4;
+  // --- limpiar instancia previa (muy importante por cache + fetch) ---
+  if (track._tState?.timer) clearInterval(track._tState.timer);
+  if (track._tState?.abort) track._tState.abort.abort();
+
+  const abort = new AbortController();
+  const state = {
+    index: 0,
+    timer: null,
+    abort,
+    isAnimating: false
+  };
+  track._tState = state;
+
+  const maxIndex = () => Math.max(0, slides.length - 1);
+
+  // step EXACTO: ancho visible del viewport
+  const step = () => Math.round(viewport.getBoundingClientRect().width);
+
+  const clampIndex = () => {
+    const m = maxIndex();
+    if (state.index > m) state.index = 0;
+    if (state.index < 0) state.index = m;
   };
 
-  const getGap = () => {
-    const style = window.getComputedStyle(track);
-    return parseFloat(style.gap || style.columnGap || "0") || 0;
+  const update = (animate = true) => {
+    clampIndex();
+
+    // evita que una transición anterior deje el carrusel “a medio camino”
+    if (!animate) track.style.transition = "none";
+    else track.style.transition = "transform .45s ease";
+
+    const w = step();
+    track.style.transform = `translate3d(-${state.index * w}px, 0, 0)`;
+
+    if (!animate) {
+      // fuerza reflow y devuelve transición
+      track.getBoundingClientRect();
+      track.style.transition = "transform .45s ease";
+    }
   };
 
-  const getStep = () => {
-    const gap = getGap();
-    const cardW = cards[0].getBoundingClientRect().width;
-    return cardW + gap;
+  const goNext = () => {
+    if (state.isAnimating) return;
+    state.isAnimating = true;
+    state.index = state.index >= maxIndex() ? 0 : state.index + 1;
+    update(true);
   };
 
-  const update = () => {
-    const visible = getVisible();
-    const maxIndex = Math.max(0, cards.length - visible);
+  const goPrev = () => {
+    if (state.isAnimating) return;
+    state.isAnimating = true;
+    state.index = state.index <= 0 ? maxIndex() : state.index - 1;
+    update(true);
+  };
 
-    if (index > maxIndex) index = 0;
-    if (index < 0) index = maxIndex;
+  // cuando termina la transición, liberamos el lock
+  track.addEventListener("transitionend", () => {
+    state.isAnimating = false;
+  }, { signal: abort.signal });
 
-    track.style.transform = `translateX(-${index * getStep()}px)`;
+  const startAuto = () => {
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+      // si está animando, no empujes otro movimiento encima
+      if (!state.isAnimating) goNext();
+    }, 4500);
+  };
+
+  const stopAuto = () => {
+    if (state.timer) clearInterval(state.timer);
+    state.timer = null;
   };
 
   nextBtn.addEventListener("click", () => {
-    const visible = getVisible();
-    const maxIndex = Math.max(0, cards.length - visible);
-    index++;
-    if (index > maxIndex) index = 0; // 🔁 vuelve al inicio
-    update();
-  });
+    stopAuto();
+    goNext();
+    startAuto();
+  }, { signal: abort.signal });
 
   prevBtn.addEventListener("click", () => {
-    const visible = getVisible();
-    const maxIndex = Math.max(0, cards.length - visible);
-    index--;
-    if (index < 0) index = maxIndex; // 🔁 va al final
-    update();
+    stopAuto();
+    goPrev();
+    startAuto();
+  }, { signal: abort.signal });
+
+  // pausa al hover (desktop)
+  section.addEventListener("mouseenter", stopAuto, { signal: abort.signal });
+  section.addEventListener("mouseleave", startAuto, { signal: abort.signal });
+
+  // resize: recalcula posición exacta sin animar (para que no “salte”)
+  window.addEventListener("resize", () => {
+    requestAnimationFrame(() => update(false));
+  }, { signal: abort.signal });
+
+  // init: deja todo perfecto antes de arrancar el auto
+  requestAnimationFrame(() => {
+    state.index = 0;
+    state.isAnimating = false;
+    update(false);
+
+    // segundo ajuste por si cambian fuentes/layout al cargar
+    setTimeout(() => update(false), 120);
+
+    startAuto();
   });
-
-  // Recalcular cuando cargan imágenes / resize
-  track.querySelectorAll("img").forEach((img) => img.addEventListener("load", update, { once: true }));
-  window.addEventListener("resize", () => requestAnimationFrame(update));
-
-  update();
 }
-
 
 /* ===================== RENDER: FOOTER ===================== */
 function renderFooter(footer) {

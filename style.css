@@ -11,9 +11,7 @@
 
 *,
 *::before,
-*::after{
-  box-sizing:border-box;
-}
+*::after{ box-sizing:border-box; }
 
 body{
   background:#fff7f2;
@@ -30,118 +28,70 @@ body{
 
 .shell{
   background:#fff;
-  /*border-radius:24px;*/
-  overflow: visible; /* ✅ sticky funciona */
+  overflow: visible;
   box-shadow:0 12px 40px rgba(0,0,0,.08);
 }
 
 .shell-body{
-  /*border-radius:24px;*/
-  overflow:hidden;   /* ✅ mantiene el marco recortado */
+  overflow:hidden;
 }
 
 /* =========================
    HEADER
 ========================= */
-
-/* ✅ Sticky siempre arriba (desktop + mobile) */
 .topbar{
   position: sticky;
   top: 0;
   z-index: 3000;
   background: #fff;
 }
-
-.topbar.is-hidden{
-  transform:none !important;
-}
+.topbar.is-hidden{ transform:none !important; }
 
 @media (max-width: 991.98px){
   .topbar{
     position: sticky;
     top: 0;
-    z-index: 2000;           /* por sobre el hero */
+    z-index: 2000;
     transform: none !important;
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
   }
-
-  /* Por si quedó alguna clase antigua */
-  .topbar.is-hidden{
-    transform: none !important;
-  }
-
-  /* Evita que el anchor quede tapado por el header */
-  section{
-    scroll-margin-top: 110px;
-  }
+  section{ scroll-margin-top: 110px; }
 }
 
-.topbar.is-hidden{
-  transform:none !important;
-}
+.navbar .container-fluid{ align-items:center; }
 
-/* Navbar */
-.navbar .container-fluid{
-  align-items:center;
-}
-
-/* Botón hamburguesa: estilizado */
 .navbar-toggler{
   border-radius:10px;
   border:1px solid rgba(0,0,0,.12);
   background:#fff;
   box-shadow:0 10px 25px rgba(0,0,0,.12);
-}
-
-.navbar-toggler{
   position: static !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: auto !important;
+  top:auto !important; right:auto !important; bottom:auto !important; left:auto !important;
 }
 
-#floatingToggler{
-  display:none !important;
-}
+#floatingToggler{ display:none !important; }
 
-/* Desktop: oculto (Bootstrap ya lo hace, esto refuerza) */
 @media (min-width:992px){
   .navbar-toggler{ display:none !important; }
 }
-
-/* Mobile: el menú desplegado queda debajo, full ancho */
 @media (max-width:991.98px){
-  #mainNav{
-    width:100%;
-    margin-top:10px;
-  }
-
-  .nav-links .nav-link{
-    padding:10px 0;
-  }
+  #mainNav{ width:100%; margin-top:10px; }
+  .nav-links .nav-link{ padding:10px 0; }
 }
 
-/* Logo */
 .brand-logo{
   height:140px;
   width:auto;
   object-fit:contain;
 }
 
-/* Links */
 .nav-links .nav-link{
   font-size:1.15rem;
   font-weight:700;
 }
-
-.nav-links .nav-item{
-  position:relative;
-}
-
-/* Separadores en desktop */
+.nav-links .nav-item{ position:relative; }
 .nav-links .nav-item + .nav-item::before{
   content:"";
   position:absolute;
@@ -153,15 +103,9 @@ body{
   background:rgba(0,0,0,.2);
 }
 
-/* Responsive tipografía */
 @media (max-width:992px){
-  .nav-links .nav-link{
-    font-size:1.25rem;
-  }
-
-  .nav-links .nav-item + .nav-item::before{
-    display:none;
-  }
+  .nav-links .nav-link{ font-size:1.25rem; }
+  .nav-links .nav-item + .nav-item::before{ display:none; }
 }
 
 /* =========================
@@ -179,9 +123,8 @@ body{
 
 .hero-img-wrap{
   width:100%;
-  height:360px;               /* controla el alto del hero */
+  height:360px;
 }
-
 .hero-img{
   width:100%;
   height:100%;
@@ -190,7 +133,6 @@ body{
   display:block;
 }
 
-/* Overlay encima */
 .hero-overlay{
   position:absolute;
   inset:0;
@@ -202,45 +144,25 @@ body{
     rgba(255,248,242,.65),
     rgba(255,248,242,.85)
   );
-  pointer-events:none;        /* deja pasar swipe */
+  pointer-events:none;
 }
 
 .hero-card,
-.hero-overlay{
-  z-index: 1;
-}
+.hero-overlay{ z-index: 1; }
 
 .hero-content{
-  pointer-events:auto;        /* CTA clickeable */
+  pointer-events:auto;
   padding:32px 16px;
   text-align:center;
 }
 
-/* Mobile */
-@media (max-width:768px){
-  .hero-img-wrap{
-    height:240px;
-  }
-}
-
-.carousel-indicators{
-  z-index:5;
-}
-
-/* Controles visibles */
-.carousel-control-prev,
-.carousel-control-next{
-  z-index:5;
-}
-
-/* Mobile */
 @media (max-width:768px){
   .hero-img-wrap{ height:240px; }
 }
 
-.hero-content{
-  padding:32px 16px;
-}
+.carousel-indicators,
+.carousel-control-prev,
+.carousel-control-next{ z-index:5; }
 
 .hero-title{
   margin:0;
@@ -253,8 +175,6 @@ body{
 .hero-sub{
   margin:12px 0 18px;
   color:rgba(0,0,0,.65);
-
-  /* tu ajuste bueno */
   max-width:760px;
   margin-left:auto;
   margin-right:auto;
@@ -262,7 +182,6 @@ body{
   font-size:1.05rem;
 }
 
-/* CTA */
 .btn-cta{
   background:var(--orange);
   color:#fff;
@@ -272,29 +191,27 @@ body{
   border:none;
 }
 
-/* ✅ centrar CTA sin forzar todo el hero a centro */
-.hero-real{
-  text-align:center;
-}
-.hero-real .btn-cta{
-  display:inline-block;
+.hero-real{ text-align:center; }
+.hero-real .btn-cta{ display:inline-block; }
+
+@media (max-width: 768px){
+  #heroCarousel .carousel-indicators,
+  #heroCarousel .carousel-control-prev,
+  #heroCarousel .carousel-control-next{ display:none !important; }
 }
 
 /* =========================
    SECTIONS
 ========================= */
-.section{
-  padding: 36px 15px;
-}
+.section{ padding: 36px 15px; }
 
 .section-title{
   position:relative;
   display:inline-block;
-  font-size:2rem;
+  font-size:2.2rem;
   font-weight:800;
-  margin-bottom:16px;
+  margin-bottom:28px;
 }
-
 .section-title::after{
   content:"";
   position:absolute;
@@ -312,87 +229,11 @@ body{
   max-width:760px;
   margin-bottom:18px;
 }
-
 .section-sub{
   margin:0;
   color:rgba(0,0,0,.62);
   line-height:1.6;
   font-size:1.05rem;
-}
-
-/* =========================
-   CARDS / PLANES
-========================= */
-.soft-card{
-  padding:24px;
-  border-radius:16px;
-  background:#fff;
-  border:1px solid rgba(0,0,0,.12);
-}
-
-.plan{
-  position:relative;
-  padding:26px 26px;           /* ✅ evita el “corte” y mejora lectura */
-  border-radius:22px;
-  overflow:hidden;
-  transition:transform .25s ease, box-shadow .25s ease;
-}
-
-.plan-basic{ background:var(--teal); }
-.plan-std{ background:var(--peach); }
-.plan-prem{ background:var(--pink); }
-
-/* blob suave */
-.plan::after{
-  content:"";
-  position:absolute;
-  top:-35px;
-  left:-35px;
-  width:130px;
-  height:130px;
-  background:rgba(223,243,243,.35);
-  border-radius:60% 40% 55% 45% / 50% 60% 40% 50%;
-  opacity:0;
-  transform:scale(.8);
-  transition:opacity .25s ease, transform .25s ease;
-  z-index:0;
-  pointer-events:none;
-}
-
-.plan:hover{
-  transform:translateY(-6px);
-  box-shadow:0 18px 40px rgba(0,0,0,.12);
-}
-
-.plan:hover::after{
-  opacity:1;
-  transform:scale(1);
-}
-
-.plan > *{
-  position:relative;
-  z-index:1;
-}
-
-/* ✅ tipografía consistente */
-.plan h3{
-  font-size:1.25rem;
-  font-weight:800;
-  margin:0 0 6px 0;
-}
-
-.plan .price{
-  font-size:2.1rem;
-  font-weight:900;
-  color:var(--brown);
-  margin:0 0 6px 0;
-}
-
-.plan p{
-  font-size:1rem;
-  line-height:1.6;
-  color:rgba(0,0,0,.65);
-  margin:0;
 }
 
 /* =========================
@@ -404,7 +245,6 @@ body{
   overflow:hidden;
   transition:transform .25s ease, box-shadow .25s ease;
 }
-
 .specialty-card::after{
   content:"";
   position:absolute;
@@ -420,21 +260,15 @@ body{
   z-index:0;
   pointer-events:none;
 }
-
 .specialty-card:hover{
   transform:translateY(-6px);
   box-shadow:0 18px 40px rgba(0,0,0,.12);
 }
-
 .specialty-card:hover::after{
   opacity:1;
   transform:scale(1);
 }
-
-.specialty-card > *{
-  position:relative;
-  z-index:1;
-}
+.specialty-card > *{ position:relative; z-index:1; }
 
 .specialty-badge{
   font-size:1.05rem;
@@ -450,7 +284,6 @@ body{
   justify-content:center;
   background:#fff7f2;
 }
-
 .specialty-img{
   width:100%;
   height:100%;
@@ -458,23 +291,68 @@ body{
   object-position:center;
   display:block;
 }
-
-.specialty-body{
-  padding:14px 16px 16px;
-}
-
+.specialty-body{ padding:14px 16px 16px; }
 .specialty-text{
   font-size:1rem;
   line-height:1.6;
   color:rgba(0,0,0,.65);
   margin:0;
 }
-
 @media (max-width:992px){
-  .specialty-media{
-    height:190px;
-  }
+  .specialty-media{ height:190px; }
 }
+
+/* =========================
+   PLANES
+========================= */
+.plan-card{
+  border-radius: 20px;
+  padding: 26px 22px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+.plan-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.1);
+}
+.plan-head{
+  padding: 14px 10px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  margin-bottom: 16px;
+}
+.plan-title{
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+.plan-price{
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.plan-list{
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  text-align: left;
+  max-width: 290px;
+  flex: 1;
+}
+.plan-list li{
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.plan-blue  { background: #e9f8fb; }
+.plan-peach { background: #fff2e6; }
+.plan-pink  { background: #fdecef; }
 
 /* =========================
    HISTORIA
@@ -484,7 +362,6 @@ body{
   line-height:1.65;
   font-size:1.05rem;
 }
-
 .historia-img{
   border-radius:18px;
   box-shadow:0 14px 30px rgba(0,0,0,.12);
@@ -493,13 +370,10 @@ body{
   position:relative;
   z-index:1;
 }
-
-/* ✅ tus formas: se aplican SOLO si envuelves la imagen con .historia-media */
 .historia-media{
   position:relative;
   display:inline-block;
 }
-
 .historia-media::before{
   content:"";
   position:absolute;
@@ -512,7 +386,6 @@ body{
   z-index:0;
   pointer-events:none;
 }
-
 .historia-media::after{
   content:"";
   position:absolute;
@@ -537,15 +410,9 @@ body{
   gap:1.5rem;
   padding:20px 24px;
 }
+.footer::before{ content:none; }
 
-/* ✅ quitado “blob grande” que podía ensuciar / tapar cosas */
-.footer::before{
-  content:none;
-}
-
-.footer a{
-  color:var(--brown);
-}
+.footer a{ color:var(--brown); }
 
 .footer-main{
   display:flex;
@@ -553,7 +420,7 @@ body{
   align-items:flex-start;
   flex-wrap:wrap;
   gap:1rem;
-  padding:10px; /* si quieres más aire, sube a 14px */
+  padding:10px;
 }
 
 .footer-map{
@@ -561,7 +428,6 @@ body{
   border-radius:14px;
   overflow:hidden;
 }
-
 .footer-map iframe{
   width:100%;
   height:240px;
@@ -577,12 +443,10 @@ body{
   align-items:center;
   gap:8px;
 }
-
 #footerPhone i{
   font-size:1.15rem;
   line-height:1;
 }
-
 .footer-right a{
   margin-left:10px;
   font-size:1.4rem;
@@ -592,18 +456,10 @@ body{
 /* =========================
    LOADER / JSON FADE
 ========================= */
-[data-content]{
-  transition:opacity .15s ease;
-}
+[data-content]{ transition:opacity .15s ease; }
+[data-content].ready{ opacity:1; }
 
-[data-content].ready{
-  opacity:1;
-}
-
-.hero-real{
-  display:none;
-}
-
+.hero-real{ display:none; }
 .hero-loader{
   display:flex;
   flex-direction:column;
@@ -611,17 +467,12 @@ body{
   gap:.35rem;
   padding:2.5rem 1rem;
 }
-
 .hero-loader-title{
   font-size:clamp(1.8rem, 5vw, 3rem);
   font-weight:800;
   letter-spacing:.5px;
 }
-
-.hero-loader-sub{
-  font-size:1rem;
-  opacity:.75;
-}
+.hero-loader-sub{ font-size:1rem; opacity:.75; }
 
 .hero-content.is-loaded .hero-loader{ display:none; }
 .hero-content.is-loaded .hero-real{ display:block; }
@@ -633,304 +484,115 @@ body{
   text-align:left;
   animation:dots 1.4s steps(4, end) infinite;
 }
-
 @keyframes dots{
-  0%   { content:""; }
-  25%  { content:"."; }
-  50%  { content:".."; }
-  75%  { content:"..."; }
-  100% { content:""; }
+  0%{ content:""; }
+  25%{ content:"."; }
+  50%{ content:".."; }
+  75%{ content:"..."; }
+  100%{ content:""; }
 }
 
 /* =========================
-   RESPONSIVE
+   RESPONSIVE (GENERAL)
 ========================= */
 @media (max-width:992px){
-  .brand-logo{
-    height:80px;
-  }
-
-  .hero-title{
-    font-size:2.2rem;
-  }
-
-  .footer{
-    gap:12px;
-  }
+  .brand-logo{ height:80px; }
+  .hero-title{ font-size:2.2rem; }
+  .footer{ gap:12px; }
 }
 
-.section-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 28px;
-}
-
-/* Cards */
-.plan-card {
-  border-radius: 20px;
-  padding: 26px 22px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 100%;
-}
-
-.plan-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.1);
-}
-
-/* Bloque superior (título + precio) */
-.plan-head {
-  padding: 14px 10px 18px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.55);
-  margin-bottom: 16px;
-}
-
-.plan-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  line-height: 1.2;
-}
-
-.plan-price {
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-/* Lista */
-.plan-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  text-align: left;
-  max-width: 290px;
-  flex: 1; /* empuja el botón hacia abajo */
-}
-
-.plan-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
-
-.plan-btn {
-  margin-top: 18px;
-  border-radius: 14px;
-  padding: 10px 14px;
-}
-
-@media (max-width: 768px){
-  #heroCarousel .carousel-indicators,
-  #heroCarousel .carousel-control-prev,
-  #heroCarousel .carousel-control-next{
-    display: none !important;
-  }
-}
-
-.plan-blue  { background: #e9f8fb; }
-.plan-peach { background: #fff2e6; }
-.plan-pink  { background: #fdecef; }
-
-/* =========================
-   TESTIMONIOS
-========================= */
-
-.testimonio-card {
-  height: 100%;
-  padding: 26px 22px 24px;
-  border-radius: 22px;
-  text-align: center;
-  position: relative;
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.testimonio-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0,0,0,.12);
-}
-
-/* Avatar */
-.testimonio-avatar {
-  width: 82px;
-  height: 82px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin: 0 auto 14px;
-  display: block;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
-}
-
-/* Texto */
-.testimonio-text {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: rgba(0,0,0,.65);
-  margin: 14px 0 18px;
-  position: relative;
-}
-
-.testimonio-text::before,
-.testimonio-text::after {
-  content: "“";
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: rgba(0,0,0,.25);
-}
-
-.testimonio-text::after {
-  content: "”";
-}
-
-/* Nombre y rol */
-.testimonio-name {
-  font-weight: 800;
-  margin-bottom: 2px;
-}
-
-.testimonio-role {
-  font-size: 0.9rem;
-  color: rgba(0,0,0,.55);
-}
-
-/* Colores */
-.testimonio-pink   { background: #fdecef; }
-.testimonio-peach  { background: #fff3e6; }
-.testimonio-teal   { background: #dff3f3; }
-.testimonio-blue   { background: #e7f1ff; }
-
-/* Testimonios - carrusel móvil */
-#testimoniosCarousel .carousel-inner{
-  padding: 8px 2px 24px;
-}
-
-#testimoniosCarousel .carousel-item{
-  padding: 0 10px;
-}
-
-/* que los controles no tapen la tarjeta */
-#testimoniosCarousel .carousel-control-prev,
-#testimoniosCarousel .carousel-control-next{
-  width: 12%;
-}
-
-#testimoniosCarousel .carousel-indicators{
-  bottom: -6px;
-}
-
-#testimoniosCarousel .carousel-indicators [data-bs-target]{
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-/* =========================
-   TESTIMONIOS (kawaii)
-========================= */
-
-/* Paleta fallback para cuando no venga color */
-:root{
-  --t-pink: #fdecef;
-  --t-peach:#fff3e6;
-  --t-teal: #dff3f3;
-  --t-blue: #e6f1ff;
-  --t-yellow:#fff7cc;
-
-  --t-ring-pink:  #ff77b7;
-  --t-ring-peach: #f29a4a;
-  --t-ring-teal:  #29b6b6;
-  --t-ring-blue:  #4aa3ff;
-  --t-ring-yellow:#f4c430;
-
-  --t-text: rgba(0,0,0,.68);
-  --t-title: rgba(0,0,0,.82);
-}
-
-/* =========================
-   TESTIMONIOS (TRACK SLIDER)
-   - 4 visibles desktop, 2 tablet, 1 mobile
-   - tamaño fijo y bonito
-   - botones NO se montan encima
-========================= */
+/* =========================================================
+   ✅ TESTIMONIOS (SLIDER ESTABLE, 1 TARJETA VISIBLE SIEMPRE)
+   - No grid
+   - Botones flotantes
+   - Slide 100% viewport, tarjeta centrada con max-width
+========================================================= */
 
 .testimonios-section{
   padding: 36px 15px;
 }
 
-/* contenedor del carrusel */
-.t-carousel{
-  display: grid;
-  grid-template-columns: 56px 1fr 56px; /* botones a los lados */
-  align-items: center;
-  gap: 18px;
-  margin-top: 10px;
+.testimonios-section #testimoniosSubtitle{
+  text-align: left;
 }
 
-/* viewport recorta */
-.t-viewport{
+.testimonios-section .t-carousel{
+  position: relative;
+  margin: 14px auto 0;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.testimonios-section .t-viewport{
   overflow: hidden;
   width: 100%;
+  padding: 0 70px; /* espacio para botones */
 }
 
-/* track que se mueve */
-.t-track{
+.testimonios-section .t-track{
   display: flex;
-  gap: 18px;
+  gap: 0; /* CLAVE: sin gap */
+  padding: 10px 0;
   transition: transform .45s ease;
   will-change: transform;
-  align-items: stretch;
-  padding: 15px 0; /* un poco de aire */
 }
 
-/* cada tarjeta ocupa 1/4 */
-.t-col{
-  flex: 0 0 calc((100% - 54px) / 4); /* 3 gaps * 18px = 54px */
-  max-width: calc((100% - 54px) / 4);
-  display: flex;
-}
-
-/* responsive: 2 y 1 */
-@media (max-width: 991.98px){
-  .t-carousel{ grid-template-columns: 52px 1fr 52px; }
-  .t-col{
-    flex-basis: calc((100% - 18px) / 2);
-    max-width: calc((100% - 18px) / 2);
-  }
-}
-@media (max-width: 767.98px){
-  .t-carousel{ grid-template-columns: 46px 1fr 46px; }
-  .t-track{ gap: 14px; }
-  .t-col{
-    flex-basis: 100%;
-    max-width: 100%;
-  }
-}
-
-/* ========= Tarjeta kawai ========= */
-
-.t-card{
+.testimonios-section .t-col{
+  flex: 0 0 100%;
   width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center; /* centra la tarjeta */
+  padding: 0 14px; /* aire interno del slide */
+}
+
+/* Tarjeta */
+.testimonios-section .t-card{
+  width: min(860px, 100%);
   border-radius: 22px;
-  padding: 18px 16px 16px;
-  /*box-shadow: 0 14px 30px rgba(0,0,0,.10);*/
+  padding: 26px 28px;
   position: relative;
   overflow: hidden;
-
-  /* ✅ tamaño parejo SIEMPRE */
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
 }
 
-/* blob suave de fondo */
-.t-card::after{
+/* Encabezado (nombre + rol) */
+.testimonios-section .t-person{
+  text-align:center;
+  margin-bottom: 14px;
+}
+.testimonios-section .t-name{
+  font-weight: 900;
+  color: var(--brown);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+.testimonios-section .t-role{
+  margin-top: 4px;
+  font-size: .95rem;
+  color: rgba(0,0,0,.55);
+}
+
+/* Texto bonito y centrado */
+.testimonios-section .t-text{
+  margin: 0 auto;
+  max-width: 760px;
+  line-height: 1.7;
+  font-size: 1rem;
+  color: rgba(0,0,0,.72);
+}
+
+/* Comilla suave */
+.testimonios-section .t-quote{
+  position:absolute;
+  left: 18px;
+  top: 18px;
+  font-size: 46px;
+  font-weight: 900;
+  color: rgba(0,0,0,.10);
+}
+
+/* Blob fondo */
+.testimonios-section .t-card::after{
   content:"";
   position:absolute;
   bottom:-48px;
@@ -942,83 +604,68 @@ body{
   z-index:0;
   pointer-events:none;
 }
-.t-card > *{ position: relative; z-index: 1; }
+.testimonios-section .t-card > *{ position: relative; z-index: 1; }
 
-/* avatar redondito con anillo */
-.t-avatar{
-  width: 78px;
-  height: 78px;
+/* Colores */
+.testimonios-section .t-card--pink   { background: #fdecef; }
+.testimonios-section .t-card--peach  { background: #fff3e6; }
+.testimonios-section .t-card--teal   { background: #dff3f3; }
+.testimonios-section .t-card--yellow { background: #fff7cc; }
+.testimonios-section .t-card--blue   { background: #e6f1ff; }
+.testimonios-section .t-card--green  { background: #e8f7ee; }
+
+/* Botones */
+.testimonios-section .t-btn{
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  overflow: hidden;
-  margin: 0 auto 10px;
-  background: #fff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.12);
-  border: 4px solid rgba(255,255,255,.85);
+  border: none;
+  background: var(--brown);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 12px 22px rgba(0,0,0,.20);
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
 }
-.t-avatar img{
+.testimonios-section .t-btn.prev{ left: 14px; }
+.testimonios-section .t-btn.next{ right: 14px; }
+.testimonios-section .t-btn:hover{ filter: brightness(1.05); }
+
+/* Mobile */
+@media (max-width: 767.98px){
+  .testimonios-section .t-viewport{ padding: 0 56px; }
+  .testimonios-section .t-card{ padding: 20px 18px; }
+  .testimonios-section .t-text{ font-size: .98rem; }
+  .testimonios-section .t-btn.prev{ left: 8px; }
+  .testimonios-section .t-btn.next{ right: 8px; }
+}
+
+/* =========================
+   TESTIMONIOS (FINAL - 1 por vista, centrado, estable)
+========================= */
+
+.testimonios-section{
+  padding: 36px 15px;
+}
+
+/* layout: botones a los lados + viewport al centro */
+.testimonios-section .t-carousel{
+  display: flex;
+  align-items: center;
+  gap: 18px;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display:block;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-/* comillas suaves */
-.t-quote{
-  position:absolute;
-  left: 14px;
-  top: 74px;
-  font-size: 40px;
-  font-weight: 900;
-  color: rgba(0,0,0,.12);
-}
-
-/* texto con clamp para que no cambie el alto */
-.t-text{
-  margin: 8px 0 10px;
-  color: rgba(0,0,0,.72);
-  line-height: 1.55;
-  font-size: .95rem;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 4; /* ajusta 3-5 */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-
-  min-height: calc(1.55em * 4); /* reserva el alto */
-}
-
-/* nombre/rol pegados abajo */
-.t-person{
-  margin-top: auto;
-  text-align:center;
-}
-.t-name{
-  font-weight: 900;
-  color: var(--brown);
-}
-.t-role{
-  font-size: .92rem;
-  color: rgba(0,0,0,.55);
-}
-
-/* ========= Colores ========= */
-.t-card--pink   { background: #fdecef; }
-.t-card--peach  { background: #fff3e6; }
-.t-card--teal   { background: #dff3f3; }
-.t-card--yellow { background: #fff7cc; }
-.t-card--blue   { background: #e6f1ff; }
-.t-card--green  { background: #e8f7ee; }
-
-/* anillo del avatar según color */
-.t-card--pink   .t-avatar{ outline: 4px solid rgba(255,119,183,.55); outline-offset: 2px; }
-.t-card--peach  .t-avatar{ outline: 4px solid rgba(242,154,74,.55);  outline-offset: 2px; }
-.t-card--teal   .t-avatar{ outline: 4px solid rgba(41,182,182,.55);  outline-offset: 2px; }
-.t-card--yellow .t-avatar{ outline: 4px solid rgba(244,196,48,.55);  outline-offset: 2px; }
-.t-card--blue   .t-avatar{ outline: 4px solid rgba(74,163,255,.55);  outline-offset: 2px; }
-.t-card--green  .t-avatar{ outline: 4px solid rgba(60,179,113,.45);  outline-offset: 2px; }
-
-/* ========= Botones (fuera, grandes, no se montan) ========= */
-.t-btn{
+/* botones */
+.testimonios-section .t-btn{
+  flex: 0 0 auto;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -1030,4 +677,95 @@ body{
   cursor: pointer;
   box-shadow: 0 12px 22px rgba(0,0,0,.20);
 }
-.t-btn:hover{ filter: brightness(1.05); }
+.testimonios-section .t-btn:hover{ filter: brightness(1.05); }
+
+/* viewport ocupa el espacio disponible */
+.testimonios-section .t-viewport{
+  flex: 1 1 auto;
+  min-width: 0;          /* CLAVE: evita colapsos raros en flex */
+  overflow: hidden;      /* CLAVE: recorta lo que se mueve */
+}
+
+/* track: sin gap para que el step sea exacto */
+.testimonios-section .t-track{
+  display: flex;
+  gap: 0;                          /* CLAVE */
+  transition: transform .45s ease;
+  will-change: transform;
+}
+
+/* cada slide = 100% del viewport */
+.testimonios-section .t-track > .t-col{
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;         /* centra la caluga */
+  padding: 0 18px;                 /* aire lateral */
+  box-sizing: border-box;
+}
+
+/* caluga centrada con ancho máximo bonito */
+.testimonios-section .t-card{
+  width: min(860px, 100%);
+  margin: 0 auto;
+  border-radius: 22px;
+  padding: 26px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* encabezado centrado */
+.testimonios-section .t-head{
+  text-align: center;
+  margin-bottom: 14px;
+}
+.testimonios-section .t-name{
+  font-weight: 900;
+  color: var(--brown);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+.testimonios-section .t-role{
+  margin-top: 4px;
+  font-size: .95rem;
+  color: rgba(0,0,0,.55);
+}
+
+/* texto ordenado y centrado */
+.testimonios-section .t-text{
+  margin: 0 auto;
+  max-width: 760px;
+  line-height: 1.7;
+  font-size: 1rem;
+  color: rgba(0,0,0,.72);
+}
+
+/* blob suave */
+.testimonios-section .t-card::after{
+  content:"";
+  position:absolute;
+  bottom:-48px;
+  right:-48px;
+  width:170px;
+  height:130px;
+  background: rgba(242,154,74,.14);
+  border-radius:55% 45% 60% 40% / 55% 60% 40% 45%;
+  pointer-events:none;
+}
+.testimonios-section .t-card > *{ position: relative; z-index: 1; }
+
+/* colores */
+.testimonios-section .t-card--pink   { background: #fdecef; }
+.testimonios-section .t-card--peach  { background: #fff3e6; }
+.testimonios-section .t-card--teal   { background: #dff3f3; }
+.testimonios-section .t-card--yellow { background: #fff7cc; }
+.testimonios-section .t-card--blue   { background: #e6f1ff; }
+.testimonios-section .t-card--green  { background: #e8f7ee; }
+
+/* mobile */
+@media (max-width: 767.98px){
+  .testimonios-section .t-track > .t-col{ padding: 0 10px; }
+  .testimonios-section .t-card{ padding: 20px 18px; }
+  .testimonios-section .t-text{ font-size: .98rem; }
+}
