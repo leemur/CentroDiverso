@@ -1,6 +1,6 @@
 /* ===================== CONFIG ===================== */
-const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiUVv52XyAWqEul6dT8eOR3GEHNbHmd4oxBwqPNBs6mYiugrBpCj9wDA1BnNtVBTAK51MvEi8UTfwGuuGT-OqtLINxK4VUxHhLUVXbZsR8i3chgnvjQv1hqcN0y_j9cE163kehBtuJBqUNKHXTpvaciL2ZM6verIVGzeWQiuh5X50rENGKdzRKBWJUqc_d4kU7wXb-8u6A4zYsTS-wMvwZZizYhsRDPx-qgnOUArOQKjjoAtteGU7IKT7kjuewnO_QpBoMFHfZ9yJhVMDZq832Ghmuhig&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
-//const CONTENT_URL = "./assets/data/content.json";
+//const CONTENT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiUVv52XyAWqEul6dT8eOR3GEHNbHmd4oxBwqPNBs6mYiugrBpCj9wDA1BnNtVBTAK51MvEi8UTfwGuuGT-OqtLINxK4VUxHhLUVXbZsR8i3chgnvjQv1hqcN0y_j9cE163kehBtuJBqUNKHXTpvaciL2ZM6verIVGzeWQiuh5X50rENGKdzRKBWJUqc_d4kU7wXb-8u6A4zYsTS-wMvwZZizYhsRDPx-qgnOUArOQKjjoAtteGU7IKT7kjuewnO_QpBoMFHfZ9yJhVMDZq832Ghmuhig&lib=MB3HCBfHz3uGEUm2U78XvlQ8B9ViIiSpe";
+const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
