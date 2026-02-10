@@ -565,12 +565,7 @@ body{
 }
 
 .testimonios-section .t-card{
-  width: min(860px, 100%);
-  margin: 0 auto;
-  border-radius: 22px;
-  padding: 26px 28px;
-  position: relative;
-  overflow: hidden;
+  padding: 24px 24px;
 }
 
 .testimonios-section .t-head{
@@ -692,10 +687,6 @@ body{
 /* asegúrate que el contenido quede encima */
 .t-card > *{ position: relative; z-index: 1; }
 
-.t-text p {
-  margin: 0 0 0.9em;
-}
-
-.t-text p:last-child {
-  margin-bottom: 0;
-}
+.t-text p { margin: 0 0 0.9em; }
+.t-text p:last-child { margin-bottom: 0; }
+#footerAddress div {  line-height: 1.6; }

@@ -250,8 +250,10 @@ function renderTestimonios(testimonios) {
             ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
             ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
           </div>
-
-        </article>
+          <div class="t-text">
+            ${textToParagraphs(text)}
+          </div>     
+       </article>
       </div>
     `;
   }).join("");
@@ -407,12 +409,52 @@ async function loadContent() {
 function textToParagraphs(text) {
   if (!text) return "";
 
-  return text
-    .split(/\. +/)              // separa por ". "
-    .map(p => p.trim())
-    .filter(Boolean)
-    .map(p => `<p>${escapeHtml(p)}.</p>`)
-    .join("");
+  const raw = String(text).replace(/\r\n/g, "\n").trim();
+
+  // Si hay líneas vacías, eso separa párrafos
+  let blocks = raw.split(/\n\s*\n+/).map(b => b.trim()).filter(Boolean);
+
+  // Si no hay líneas vacías pero sí saltos simples, respétalos como párrafos igual
+  if (blocks.length === 1 && raw.includes("\n")) {
+    blocks = raw.split(/\n+/).map(b => b.trim()).filter(Boolean);
+  }
+
+  return blocks.map(p => `<p>${escapeHtml(p)}</p>`).join("");
+}
+
+function renderFooter(footer) {
+  if (!footer) return;
+
+  // Texto principal
+  setText("footerPhoneText", footer.phone?.trim() || "");
+  setText("footerFollowLabel", footer.followLabel?.trim() || "");
+
+  // Dirección con saltos de línea (si vienen)
+  if (footer.address) {
+    const addressHtml = footer.address
+      .split(/\n+/)
+      .map(l => `<div>${escapeHtml(l.trim())}</div>`)
+      .join("");
+    setHtml("footerAddress", addressHtml);
+  }
+
+  // Redes sociales
+  setHref("linkWhatsapp", footer.social?.whatsapp);
+  setHref("linkFacebook", footer.social?.facebook);
+  setHref("linkInstagram", footer.social?.instagram);
+  setHref("linkLinkedin", footer.social?.linkedin);
+
+  // Abrir redes en nueva pestaña
+  ["linkWhatsapp", "linkFacebook", "linkInstagram", "linkLinkedin"].forEach(id => {
+    const a = byId(id);
+    if (!a) return;
+
+    const href = a.getAttribute("href");
+    if (href && href !== "#") {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    }
+  });
 }
 
 /* ===================== INIT ===================== */
