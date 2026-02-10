@@ -558,7 +558,7 @@ body{
   flex: 0 0 100%;
   width: 100%;
   max-width: 100%;
-  display: flex;
+  /*display: flex;*/
   justify-content: center;
   padding: 0 18px;
   box-sizing: border-box;
@@ -691,3 +691,11 @@ body{
 
 /* asegúrate que el contenido quede encima */
 .t-card > *{ position: relative; z-index: 1; }
+
+.t-text p {
+  margin: 0 0 0.9em;
+}
+
+.t-text p:last-child {
+  margin-bottom: 0;
+}

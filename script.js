@@ -250,7 +250,7 @@ function renderTestimonios(testimonios) {
             ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
             ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
           </div>
-          <p class="t-text">${escapeHtml(text)}</p>
+
         </article>
       </div>
     `;
@@ -403,6 +403,17 @@ async function loadContent() {
     });
   });
 })();
+
+function textToParagraphs(text) {
+  if (!text) return "";
+
+  return text
+    .split(/\. +/)              // separa por ". "
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => `<p>${escapeHtml(p)}.</p>`)
+    .join("");
+}
 
 /* ===================== INIT ===================== */
 document.addEventListener("DOMContentLoaded", loadContent);
