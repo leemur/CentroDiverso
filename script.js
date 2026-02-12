@@ -4,6 +4,7 @@ const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
+
 /* ===================== HELPERS ===================== */
 const byId = (id) => document.getElementById(id);
 
@@ -44,8 +45,26 @@ function formatPriceCLP(price) {
 
   const n = Number(price);
   if (!Number.isFinite(n)) return String(price);
-
   return `$${n.toLocaleString("es-CL")}`;
+}
+
+function isMobile() {
+  return window.matchMedia("(max-width: 767.98px)").matches;
+}
+
+/* Texto -> HTML en párrafos:
+   - Respeta \n\n como cambio de párrafo
+   - Respeta \n como párrafo si no hay \n\n
+*/
+function textToParagraphsHtml(text) {
+  const raw = safeString(text, "").replace(/\r\n/g, "\n").trim();
+  if (!raw) return "";
+
+  let blocks = raw.split(/\n\s*\n+/).map((b) => b.trim()).filter(Boolean);
+  if (blocks.length === 1 && raw.includes("\n")) {
+    blocks = raw.split(/\n+/).map((b) => b.trim()).filter(Boolean);
+  }
+  return blocks.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
 }
 
 /* ===================== RENDER: HERO ===================== */
@@ -118,9 +137,7 @@ function renderEspecialidades(especialidades) {
         <header class="specialty-badge">${escapeHtml(safeString(it.badge))}</header>
 
         <div class="specialty-media">
-          <img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(
-      safeString(it.badge)
-    )}" class="specialty-img">
+          <img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(safeString(it.badge))}" class="specialty-img">
         </div>
 
         <div class="specialty-body">
@@ -178,6 +195,8 @@ function renderPlanes(planes) {
   });
 }
 
+/* ===================== TESTIMONIOS ===================== */
+
 function renderTestimonios(testimonios) {
   setText("testimoniosTitle", testimonios?.title || "Testimonios");
   setText("testimoniosSubtitle", testimonios?.subtitle || "Lo que dicen las familias");
@@ -188,7 +207,6 @@ function renderTestimonios(testimonios) {
   const items = testimonios?.items;
   if (!Array.isArray(items) || items.length === 0) {
     track.innerHTML = "";
-    // si no hay items, mata slider
     if (track._tState?.abort) track._tState.abort.abort();
     if (track._tState?.timer) clearInterval(track._tState.timer);
     track._tState = null;
@@ -202,64 +220,81 @@ function renderTestimonios(testimonios) {
     yellow: "t-card--yellow",
     blue: "t-card--blue",
     green: "t-card--green",
-    black: "t-card--blue"
+    black: "t-card--blue",
   };
-
   const FALLBACKS = [
     "t-card--peach",
     "t-card--pink",
     "t-card--teal",
     "t-card--yellow",
     "t-card--blue",
-    "t-card--green"
+    "t-card--green",
   ];
-
   const pickColorClass = (c, i) => {
     const key = String(c || "").trim().toLowerCase();
     return COLOR_CLASS[key] || FALLBACKS[i % FALLBACKS.length];
   };
 
-  track.innerHTML = items.map((it, i) => {
-    const text = safeString(it.text, "");
+  // blobs random (0 a 4) en esquinas; evita duplicados
+  const corners = ["tl", "tr", "bl", "br"];
+  const sizes = ["s1", "s2", "s3"];
 
-    const name = safeString(it.name, "");
-    const nombreNino = safeString(
-      it.nombreNino ?? it.nombre_nino ?? it.childName ?? it.nino ?? "",
-      ""
-    );
+  track.innerHTML = items
+    .map((it, i) => {
+      const text = safeString(it.text, "");
+      const name = safeString(it.name, "");
+      const nombreNino = safeString(it.nombreNino ?? it.nombre_nino ?? it.childName ?? it.nino ?? "", "");
+      const colorClass = pickColorClass(it.color, i);
 
-    const colorClass = pickColorClass(it.color, i);
+      const blobCount = Math.floor(Math.random() * 5); // 0..4
+      const usedCorners = new Set();
+      let blobs = "";
 
-    const corners = ["tl","tr","bl","br"];
-    const sizes = ["s1","s2","s3"];
+      for (let b = 0; b < blobCount; b++) {
+        const available = corners.filter((c) => !usedCorners.has(c));
+        if (!available.length) break;
+        const corner = available[Math.floor(Math.random() * available.length)];
+        usedCorners.add(corner);
 
-    const blobCount = Math.floor(Math.random() * 4); // 0–3 blobs
-    let blobs = "";
+        const size = sizes[Math.floor(Math.random() * sizes.length)];
+        blobs += `<span class="t-blob ${corner} ${size}" aria-hidden="true"></span>`;
+      }
 
-    for(let b = 0; b < blobCount; b++){
-      const corner = corners[Math.floor(Math.random() * corners.length)];
-      const size = sizes[Math.floor(Math.random() * sizes.length)];
-      blobs += `<span class="t-blob ${corner} ${size}"></span>`;
-    }
+      // Texto con párrafos reales
+      const paragraphsHtml = textToParagraphsHtml(text);
 
-    return `
-      <div class="t-col">
-        <article class="t-card ${colorClass}">
-          ${blobs}
-          <div class="t-head">
-            ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
-            ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
-          </div>
-          <div class="t-text">
-            ${textToParagraphs(text)}
-          </div>     
-       </article>
-      </div>
-    `;
-  }).join("");
+      // Botón SOLO mobile (se inyecta igual, pero CSS lo oculta en desktop)
+      const moreBtn = `
+        <button class="t-more" type="button" aria-expanded="false">
+          <span>Ver más</span>
+        </button>
+      `;
 
-  // Inicia slider después de pintar DOM (doble RAF = más estable con fuentes/layout)
-  requestAnimationFrame(() => requestAnimationFrame(() => initTestimoniosSlider()));
+      return `
+        <div class="t-col">
+          <article class="t-card ${colorClass}">
+            ${blobs}
+            <div class="t-head">
+              ${name ? `<div class="t-name">${escapeHtml(name)}</div>` : ""}
+              ${nombreNino ? `<div class="t-role">${escapeHtml(nombreNino)}</div>` : ""}
+            </div>
+
+            <div class="t-text">
+              ${paragraphsHtml}
+            </div>
+
+            ${moreBtn}
+          </article>
+        </div>
+      `;
+    })
+    .join("");
+
+  requestAnimationFrame(() => {
+    initTestimoniosSlider();
+    initTestimoniosReadMore();
+    syncReadMoreState(); // ajusta botones/ocultamiento según ancho
+  });
 }
 
 function initTestimoniosSlider() {
@@ -271,10 +306,9 @@ function initTestimoniosSlider() {
   const nextBtn = section.querySelector(".t-btn.next");
   if (!prevBtn || !nextBtn) return;
 
-  const slides = Array.from(track.children); // .t-col
+  const slides = Array.from(track.children);
   if (!slides.length) return;
 
-  // limpiar instancia previa
   if (track._tState?.timer) clearInterval(track._tState.timer);
   if (track._tState?.abort) track._tState.abort.abort();
 
@@ -282,9 +316,7 @@ function initTestimoniosSlider() {
   const state = { index: 0, timer: null, abort, locked: false };
   track._tState = state;
 
-  // IMPORTANTÍSIMO: step real = ancho del slide real (no viewport)
   const step = () => Math.round(slides[0].getBoundingClientRect().width);
-
   const maxIndex = () => Math.max(0, slides.length - 1);
 
   const update = () => {
@@ -308,7 +340,9 @@ function initTestimoniosSlider() {
 
   track.addEventListener(
     "transitionend",
-    () => { state.locked = false; },
+    () => {
+      state.locked = false;
+    },
     { signal: abort.signal }
   );
 
@@ -324,24 +358,142 @@ function initTestimoniosSlider() {
     state.timer = null;
   };
 
-  nextBtn.addEventListener("click", () => { stopAuto(); goNext(); startAuto(); }, { signal: abort.signal });
-  prevBtn.addEventListener("click", () => { stopAuto(); goPrev(); startAuto(); }, { signal: abort.signal });
+  nextBtn.addEventListener(
+    "click",
+    () => {
+      stopAuto();
+      goNext();
+      startAuto();
+    },
+    { signal: abort.signal }
+  );
+  prevBtn.addEventListener(
+    "click",
+    () => {
+      stopAuto();
+      goPrev();
+      startAuto();
+    },
+    { signal: abort.signal }
+  );
 
   section.addEventListener("mouseenter", stopAuto, { signal: abort.signal });
   section.addEventListener("mouseleave", startAuto, { signal: abort.signal });
 
-  window.addEventListener("resize", () => requestAnimationFrame(update), { signal: abort.signal });
+  window.addEventListener(
+    "resize",
+    () => requestAnimationFrame(() => {
+      update();
+      syncReadMoreState();
+    }),
+    { signal: abort.signal }
+  );
 
-  // init
   requestAnimationFrame(() => {
     state.index = 0;
-    // asegura transición para que no “pegue”
     track.style.transition = "transform .45s ease";
     update();
     startAuto();
   });
 }
 
+function initTestimoniosReadMore() {
+  const section = document.getElementById("testimonios");
+  if (!section || section._moreInit) return;
+  section._moreInit = true;
+
+  section.addEventListener("click", (e) => {
+    const link = e.target.closest(".t-more");
+    if (!link) return;
+
+    if (!window.matchMedia("(max-width: 767.98px)").matches) return;
+
+    e.preventDefault();
+
+    const card = link.closest(".t-card");
+    if (!card) return;
+
+    const expanded = card.classList.toggle("is-expanded");
+    card.classList.toggle("is-collapsed", !expanded);
+
+    link.setAttribute("aria-expanded", expanded ? "true" : "false");
+    link.textContent = expanded ? "Ver menos" : "Ver más";
+  });
+}
+
+
+/* Oculta/activa el botón según:
+   - Solo mobile
+   - Solo si el texto realmente “se corta” (scrollHeight > clientHeight)
+*/
+function syncReadMoreState() {
+  const section = document.getElementById("testimonios");
+  if (!section) return;
+
+  const cards = section.querySelectorAll(".t-card");
+  cards.forEach((card) => {
+    const text = card.querySelector(".t-text");
+    const btn = card.querySelector(".t-more");
+    if (!text || !btn) return;
+
+    // Desktop: siempre normal
+    if (!isMobile()) {
+      card.classList.remove("is-collapsed");
+      card.classList.remove("is-expanded");
+      btn.setAttribute("aria-expanded", "false");
+      btn.querySelector("span").textContent = "Ver más";
+      return;
+    }
+
+    // Mobile: colapsado por defecto, pero solo si realmente corta
+    // (si tu CSS hace clamp/altura fija cuando está colapsado)
+    card.classList.add("is-collapsed");
+    card.classList.remove("is-expanded");
+    btn.setAttribute("aria-expanded", "false");
+    btn.querySelector("span").textContent = "Ver más";
+
+    // Espera layout
+    requestAnimationFrame(() => {
+      const needsMore = text.scrollHeight - text.clientHeight > 6;
+      btn.style.display = needsMore ? "" : "none";
+      if (!needsMore) {
+        card.classList.remove("is-collapsed");
+      }
+    });
+  });
+}
+
+/* ===================== RENDER: FOOTER ===================== */
+function renderFooter(footer) {
+  if (!footer) return;
+
+  setText("footerPhoneText", footer.phone?.trim() || "");
+  setText("footerFollowLabel", (footer.followLabel ?? footer.follow_label ?? "").trim());
+
+  if (footer.address) {
+    const addressHtml = String(footer.address)
+      .split(/\n+/)
+      .map((l) => `<div>${escapeHtml(l.trim())}</div>`)
+      .join("");
+    setHtml("footerAddress", addressHtml);
+  }
+
+  setHref("linkWhatsapp", footer.social?.whatsapp);
+  setHref("linkFacebook", footer.social?.facebook);
+  setHref("linkInstagram", footer.social?.instagram);
+  setHref("linkLinkedin", footer.social?.linkedin);
+
+  ["linkWhatsapp", "linkFacebook", "linkInstagram", "linkLinkedin"].forEach((id) => {
+    const a = byId(id);
+    if (!a) return;
+
+    const href = a.getAttribute("href");
+    if (href && href !== "#") {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    }
+  });
+}
 
 /* ===================== APPLY + LOAD ===================== */
 function applyContent(data) {
@@ -360,7 +512,6 @@ function applyContent(data) {
 
 async function loadContent() {
   try {
-    // 1) cache
     const cachedRaw = localStorage.getItem(CACHE_KEY);
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
@@ -369,7 +520,6 @@ async function loadContent() {
       }
     }
 
-    // 2) fetch fresh
     const res = await fetch(CONTENT_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -405,57 +555,6 @@ async function loadContent() {
     });
   });
 })();
-
-function textToParagraphs(text) {
-  if (!text) return "";
-
-  const raw = String(text).replace(/\r\n/g, "\n").trim();
-
-  // Si hay líneas vacías, eso separa párrafos
-  let blocks = raw.split(/\n\s*\n+/).map(b => b.trim()).filter(Boolean);
-
-  // Si no hay líneas vacías pero sí saltos simples, respétalos como párrafos igual
-  if (blocks.length === 1 && raw.includes("\n")) {
-    blocks = raw.split(/\n+/).map(b => b.trim()).filter(Boolean);
-  }
-
-  return blocks.map(p => `<p>${escapeHtml(p)}</p>`).join("");
-}
-
-function renderFooter(footer) {
-  if (!footer) return;
-
-  // Texto principal
-  setText("footerPhoneText", footer.phone?.trim() || "");
-  setText("footerFollowLabel", footer.followLabel?.trim() || "");
-
-  // Dirección con saltos de línea (si vienen)
-  if (footer.address) {
-    const addressHtml = footer.address
-      .split(/\n+/)
-      .map(l => `<div>${escapeHtml(l.trim())}</div>`)
-      .join("");
-    setHtml("footerAddress", addressHtml);
-  }
-
-  // Redes sociales
-  setHref("linkWhatsapp", footer.social?.whatsapp);
-  setHref("linkFacebook", footer.social?.facebook);
-  setHref("linkInstagram", footer.social?.instagram);
-  setHref("linkLinkedin", footer.social?.linkedin);
-
-  // Abrir redes en nueva pestaña
-  ["linkWhatsapp", "linkFacebook", "linkInstagram", "linkLinkedin"].forEach(id => {
-    const a = byId(id);
-    if (!a) return;
-
-    const href = a.getAttribute("href");
-    if (href && href !== "#") {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener noreferrer");
-    }
-  });
-}
 
 /* ===================== INIT ===================== */
 document.addEventListener("DOMContentLoaded", loadContent);
