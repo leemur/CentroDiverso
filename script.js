@@ -4,8 +4,6 @@ const CONTENT_URL = "./assets/data/content.json";
 const CACHE_KEY = "centrodiverso_content_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
-
-/* ===================== HELPERS ===================== */
 const byId = (id) => document.getElementById(id);
 
 function setText(id, value) {
@@ -67,7 +65,6 @@ function textToParagraphsHtml(text) {
   return blocks.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
 }
 
-/* ===================== RENDER: HERO ===================== */
 function renderHero(hero) {
   if (!hero) return;
 
