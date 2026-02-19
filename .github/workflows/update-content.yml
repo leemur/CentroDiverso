@@ -18,7 +18,7 @@ jobs:
       - name: Fetch JSON from Apps Script
         run: |
           mkdir -p assets/data
-          curl -L --fail "https://script.google.com/macros/s/AKfycbwQRrNRJ4fF4kpiyUG4w8HYVp68JbSW2SmpTImz3PCwsP_15nvMoMk-f2sRVdgKYVP1/exec" \
+          curl -L --fail "https://script.google.com/macros/s/AKfycbz-VQ2iWtBzo-oxe02KvBF0tBGWthw0l0Nmrw-q6XGY5sAJ858DjvR9HNUCgvfUJQu_/exec" \
             -o assets/data/content.json
 
       - name: Commit changes (if any)
