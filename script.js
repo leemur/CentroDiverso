@@ -95,12 +95,21 @@ function renderHistoria(historia) {
 
   setText("historiaTitle", safeString(historia.title, ""));
 
-  if (Array.isArray(historia.paragraphs)) {
-    const html = historia.paragraphs
-      .filter(Boolean)
-      .map((p) => `<p class="historia-text">${escapeHtml(p)}</p>`)
-      .join("");
-    setHtml("historiaBody", html);
+  const body = document.getElementById("historiaBody");
+  if (body) {
+    // Limpia SOLO el contenido del body
+    body.replaceChildren();
+
+    if (Array.isArray(historia.paragraphs)) {
+      historia.paragraphs
+        .filter((p) => typeof p === "string" && p.trim())
+        .forEach((p) => {
+          const el = document.createElement("p");
+          el.className = "historia-text";
+          el.textContent = p; // seguro (equivalente a escapeHtml)
+          body.appendChild(el);
+        });
+    }
   }
 
   const img = document.querySelector(".historia-img");
